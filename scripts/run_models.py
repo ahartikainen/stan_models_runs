@@ -100,3 +100,11 @@ def process_models():
                 print(stat, val)
             print("\n")
     print("Models run")
+
+
+if __name__ == "__main__":
+    import datetime
+
+    print(datetime.datetime.now())
+    process_models()
+    print(datetime.datetime.now())
