@@ -104,7 +104,7 @@ def process_models(offset, num_models):
     with gzip.open(save_path, "wb") as f:
         pickle.dump(fits, f)
 
-    for i, (key, values) in enumerate(fits, offset):
+    for i, (key, values) in enumerate(fits.items(), offset):
         if key == "FAIL_INFO":
             print("\n\nFAIL vs SUCCESS")
             print(f"Total: {sum(values.values())}\n\n")
