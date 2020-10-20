@@ -39,7 +39,7 @@ jobs:
           cd posteriordb/python
           pip install .
           cd ../posterior_database
-          echo "POSTERIORDB=$(echo pwd)" >> $GITHUB_ENV
+          echo "POSTERIORDB=$(pwd)" >> $GITHUB_ENV
           cd ../..
 
       - name: Check versions
