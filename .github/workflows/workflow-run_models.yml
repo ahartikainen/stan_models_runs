@@ -31,6 +31,7 @@ jobs:
         run: |
           pip install --upgrade pip wheel
           pip install arviz cmdstanpy ujson click
+          pip install --upgrade git+https://github.com/arviz-devs/arviz
 
       - name: Install posteriordb
         run: |
