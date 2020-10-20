@@ -48,6 +48,10 @@ jobs:
           python -c 'import arviz;print("ArviZ version: {}".format(arviz.__version__))'
           python -c 'import cmdstanpy;print("CmdStanPy version: {}".format(cmdstanpy.__version__))'
 
+      - name: Debug env
+        run: |
+          env
+
       - name: Run models
         run: |
           mkdir process_dir
