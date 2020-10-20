@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 
 import arviz as az
+import click
 import cmdstanpy
 import posteriordb
 import ujson as json
@@ -15,11 +16,17 @@ POSTERIORDB_PATH = os.environ.get("POSTERIORDB")
 DB = posteriordb.PosteriorDatabase(POSTERIORDB_PATH)
 
 
-def get_model_and_data():
+def get_model_and_data(offset=0, num_models=-1):
     """Get model and data from posteriordb."""
     fail_or_not = {"FAIL_INFO": True}
+    model_count = 0
     with tempfile.TemporaryDirectory(prefix="stan_testing_") as tmpdir:
-        for p in DB.posteriors():
+        for i, p in enumerate(DB.posteriors(), 0):
+            if i < offset:
+                continue
+            if (num_models > 0) and ((model_count + 1) > num_models):
+                break
+            model_count += 1
             try:
                 model_name = p.posterior_info["model_name"]
                 data_name = p.posterior_info["data_name"]
@@ -57,11 +64,12 @@ def get_model_and_data():
             except:
                 fail_or_not[model_data] = (False, "unknown reason")
                 continue
+        yield fail_or_not
 
 
-def run():
+def run(offset=0, num_models=-1):
     fit_info = {}
-    for information in get_model_and_data():
+    for information in get_model_and_data(offset=offset, num_models=num_models):
         if "FAIL_INFO" in information:
             break
         try:
@@ -80,18 +88,31 @@ def run():
         except Exception as e:
             print(e)
             continue
+
+    information.pop("FAIL_INFO")
+    fit_info["FAIL_INFO"] = information
     return fit_info
 
 
-def process_models():
+@click.command()
+@click.option("--offset", default=0, help="Skip # models.")
+@click.option("--num_models", default=-1, help="Iterate through # of models")
+def process_models(offset, num_models):
     """Run models and get results."""
-    fits = run()
+    fits = run(offset=offset, num_models=num_models)
     save_path = "./results.pickle.gz"
     with gzip.open(save_path, "wb") as f:
         pickle.dump(fits, f)
 
-    for key, values in fits:
-        print(f"\n\n\nmodel: {key}")
+    for i, (key, values) in enumerate(fits, offset):
+        if key == "FAIL_INFO":
+            print("\n\nFAIL vs SUCCESS")
+            print(f"Total: {sum(values.values())}\n\n")
+            for model, success in values.items():
+                print(f"model: {model} -> {success}")
+            print("\n\n")
+            continue
+        print(f"\n\n\nmodel: {i} {key}")
         for stat, val in values.items():
             if stat == "posterior":
                 print(stat, val.posterior)

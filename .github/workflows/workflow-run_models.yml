@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
+        offset: [0, 20, 40, 60, 80]
       fail-fast: false
     steps:
       - name: Checkout github
@@ -29,7 +30,7 @@ jobs:
       - name: Install python dependencies (pip)
         run: |
           pip install --upgrade pip wheel
-          pip install arviz cmdstanpy ujson
+          pip install arviz cmdstanpy ujson click
 
       - name: Install posteriordb
         run: |
@@ -39,7 +40,7 @@ jobs:
           cd posteriordb/python
           pip install .
           cd ../posterior_database
-          echo "POSTERIORDB=$(pwd)" >> $GITHUB_ENV
+          echo "POSTERIORDB=$(echo pwd)" >> $GITHUB_ENV
           cd ../..
 
       - name: Check versions
@@ -47,12 +48,8 @@ jobs:
           python -c 'import arviz;print("ArviZ version: {}".format(arviz.__version__))'
           python -c 'import cmdstanpy;print("CmdStanPy version: {}".format(cmdstanpy.__version__))'
 
-      - name: Install CmdStan
-        run: |
-          python -m cmdstanpy.install_cmdstan
-
       - name: Run models
         run: |
           mkdir process_dir
           cd process_dir
-          python ../scripts/run_models.py
+          python ../scripts/run_models.py --offset ${{ matrix.offset }} --num_models 20
