@@ -1,4 +1,4 @@
-name: Convergence
+name: ModelRuns
 
 on:
     push:
@@ -42,7 +42,7 @@ jobs:
           echo "POSTERIORDB=$(echo pwd)" >> $GITHUB_ENV
           cd ../..
 
-      - name: CmdStanPy, posteriordb and ArviZ versions
+      - name: CmdStanPy posteriordb ArviZ versions
         run: |
           python -c 'import arviz;print("ArviZ version: {}".format(arviz.__version__))'
           python -c 'import cmdstanpy;print("CmdStanPy version: {}".format(cmdstanpy.__version__))'
