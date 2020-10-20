@@ -1,0 +1,55 @@
+name: Convergence
+
+on:
+    push:
+      branches:
+        - '**'
+    schedule:
+      - cron:  '0 0 * * 0'
+
+jobs:
+  tests:
+    name: models
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+      fail-fast: false
+    steps:
+      - name: Checkout github
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install python dependencies (pip)
+        run: |
+          pip install --upgrade pip wheel
+          pip install arviz cmdstanpy ujson
+
+      - name: Install posteriordb
+        run:|
+          mkdir git_repos
+          cd git_repos
+          git clone https://github.com/MansMeg/posteriordb
+          cd posteriordb/python
+          pip install .
+          cd ../posteriordb
+          echo "POSTERIORDB=$(echo pwd)" >> $GITHUB_ENV
+          cd ../..
+
+      - name: CmdStanPy, posteriordb and ArviZ versions
+        run: |
+          python -c 'import arviz;print("ArviZ version: {}".format(arviz.__version__))'
+          python -c 'import cmdstanpy;print("CmdStanPy version: {}".format(cmdstanpy.__version__))'
+          python -c 'import posteriordb;print("posteriordb version: {}".format(posteriordb.__version__))'
+
+      - name: Run models
+        run: |
+          mkdir process_dir
+          cd process_dir
+          python ../scripts/run_models.py
