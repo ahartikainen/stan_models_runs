@@ -48,9 +48,9 @@ jobs:
           python -c 'import arviz;print("ArviZ version: {}".format(arviz.__version__))'
           python -c 'import cmdstanpy;print("CmdStanPy version: {}".format(cmdstanpy.__version__))'
 
-      - name: Debug env
+      - name: Install CmdStan
         run: |
-          env
+          python -m cmdstanpy.install_cmdstan
 
       - name: Run models
         run: |
