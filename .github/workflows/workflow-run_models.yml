@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
-        offset: [0, 20, 40, 60, 80]
+        offset: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
       fail-fast: false
     steps:
       - name: Checkout github
@@ -57,4 +57,4 @@ jobs:
         run: |
           mkdir process_dir
           cd process_dir
-          python ../scripts/run_models.py --offset ${{ matrix.offset }} --num_models 20
+          python ../scripts/run_models.py --offset ${{ matrix.offset }} --num_models 10
