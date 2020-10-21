@@ -8,13 +8,13 @@ on:
       - cron:  '0 0 * * 0'
 
 jobs:
-  tests:
+  models:
     name: models
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.8]
-        offset: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+        offset: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95]
       fail-fast: false
     steps:
       - name: Checkout github
@@ -57,9 +57,49 @@ jobs:
         run: |
           mkdir process_dir
           cd process_dir
-          python ../scripts/run_models.py --offset ${{ matrix.offset }} --num_models 2
+          python ../scripts/run_models.py --offset ${{ matrix.offset }} --num_models 5
 
       - uses: actions/upload-artifact@v2
         with:
           name: fit_results
           path: process_dir/results/*.pickle.gz
+
+  visualize:
+    name: visualize
+    needs: models
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+      - name: Checkout github
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install python dependencies (pip)
+        run: |
+          pip install --upgrade pip wheel
+          pip install pandas bokeh
+          pip install --upgrade git+https://github.com/arviz-devs/arviz
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: fit_data
+          path: fit_results
+
+      - name: Run visualize
+        run: |
+          mkdir visualize_dir
+          cd visualize_dir
+          python ../scripts/run_visualize.py
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: visualization
+          path: visualize_dir/results/*.html
