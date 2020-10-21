@@ -1,4 +1,5 @@
 import gzip
+import logging
 import os
 import pickle
 import shutil
@@ -8,6 +9,7 @@ from pathlib import Path
 import arviz as az
 import click
 import cmdstanpy
+import numpy as np
 import posteriordb
 import ujson as json
 
@@ -15,6 +17,7 @@ POSTERIORDB_PATH = os.environ.get("POSTERIORDB")
 
 DB = posteriordb.PosteriorDatabase(POSTERIORDB_PATH)
 
+logging.basicConfig(level=logging.WARNING)
 
 def get_model_and_data(offset=0, num_models=-1):
     """Get model and data from posteriordb."""
@@ -118,7 +121,7 @@ def process_models(offset, num_models):
                 print(stat, val.posterior)
                 print(stat, val.sample_stats)
             else:
-                print(stat, val)
+                print(stat, np.min(val), np.max(val))
             print("\n")
     print("Models run")
 
