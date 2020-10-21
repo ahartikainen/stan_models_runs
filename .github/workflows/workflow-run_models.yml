@@ -57,4 +57,9 @@ jobs:
         run: |
           mkdir process_dir
           cd process_dir
-          python ../scripts/run_models.py --offset ${{ matrix.offset }} --num_models 10
+          python ../scripts/run_models.py --offset ${{ matrix.offset }} --num_models 2
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: fit_results
+          path: process_dir/results/*.pickle.gz
