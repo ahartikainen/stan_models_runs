@@ -110,7 +110,7 @@ def process_models(offset, num_models):
     for i, (key, values) in enumerate(fits.items(), offset):
         if key == "FAIL_INFO":
             print("\n\nFAIL vs SUCCESS")
-            print(f"Total: {sum(values.values())}\n\n")
+            print(f"Total: {sum(item for item, _ in values.values())}\n\n")
             for model, success in values.items():
                 print(f"model: {model} -> {success}")
             print("\n\n")
