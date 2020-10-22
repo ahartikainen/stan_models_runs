@@ -57,6 +57,12 @@ def get_model_and_data(offset=0, num_models=-1):
                 new_data = tmpdir_path / model_data / f"{data_name}.json"
 
                 shutil.copy2(str(model_code), str(new_model_code))
+                with new_model_code.open("r") as f:
+                    stan_code = f.read()
+                stan_code = stan_code.replace("<-", "=")
+                with new_model_code.open("w") as f:
+                    print(stan_code, file=f)
+
                 with new_data.open("w") as f:
                     json.dump(data.values(), f)
 
