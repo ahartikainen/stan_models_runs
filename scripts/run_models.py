@@ -1,3 +1,4 @@
+"""Sample models from posteriordb."""
 import gzip
 import logging
 import os
@@ -73,6 +74,7 @@ def get_model_and_data(offset=0, num_models=-1):
 
 
 def run(offset=0, num_models=-1):
+    """Compile and sample models."""
     fit_info = {}
     for information in get_model_and_data(offset=offset, num_models=num_models):
         if "FAIL_INFO" in information:
@@ -84,13 +86,12 @@ def run(offset=0, num_models=-1):
                 model_name=model_name, stan_file=information["model_code"]
             )
             end_build_model_start_fit = time()
-            fit = model.sample(data=str(information["data"]))
+            fit = model.sample(
+                data=str(information["data"]), chains=2, seed=42, iter_warmup=500, 
+                iter_sampling=500, show_progress=True
+            )
             end_fit = time()
             fit_info[model_name] = {
-                "posterior": az.from_cmdstanpy(posterior=fit),
-                "rhat": az.rhat(fit),
-                "ess_bulk": az.ess(fit, method="bulk"),
-                "ess_tail": az.ess(fit, method="tail"),
                 "summary": az.summary(fit),
                 "duration_model_seconds": end_build_model_start_fit - start_build_model,
                 "duration_fit_seconds": end_fit - end_build_model_start_fit,
@@ -117,8 +118,8 @@ def process_models(offset, num_models):
 
     for i, (key, values) in enumerate(fits.items(), offset):
         if key == "FAIL_INFO":
-            print("\n\nFAIL vs SUCCESS")
-            print(f"Total: {sum(item for item, _ in values.values())}\n\n")
+            print("\n\nFAIL / SUCCESS")
+            print(f"{sum(not item for item, _ in values.values())} / {sum(item for item, _ in values.values())}\n\n")
             for model, success in values.items():
                 if success[0]:
                     print(f"model: {success[0]} <- {model}")
@@ -128,13 +129,11 @@ def process_models(offset, num_models):
             continue
         print(f"\n\n\nmodel: {i} {key}")
         for stat, val in values.items():
-            if stat == "posterior":
-                print(stat, val.posterior)
-                print(stat, val.sample_stats)
-            elif "duration" in stat:
+            if "duration" in stat:
                 print(stat, val)
             else:
-                print(stat, np.min(val), np.max(val))
+                print(stat)
+                print(val)
             print("\n")
     print("Selected models run")
 
