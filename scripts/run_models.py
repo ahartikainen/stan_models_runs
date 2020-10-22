@@ -3,8 +3,10 @@ import gzip
 import logging
 import os
 import pickle
+import signal
 import shutil
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from time import time
 
@@ -20,6 +22,20 @@ POSTERIORDB_PATH = os.environ.get("POSTERIORDB")
 DB = posteriordb.PosteriorDatabase(POSTERIORDB_PATH)
 
 logging.basicConfig(level=logging.WARNING)
+
+class TimeoutException(Exception): pass
+
+@contextmanager
+def time_limit(seconds):
+    """Grabbed from https://stackoverflow.com/a/601168"""
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timed out!")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
 
 
 def get_model_and_data(offset=0, num_models=-1):
@@ -82,6 +98,7 @@ def get_model_and_data(offset=0, num_models=-1):
 def run(offset=0, num_models=-1):
     """Compile and sample models."""
     fit_info = {}
+    timeouts = []
     for information in get_model_and_data(offset=offset, num_models=num_models):
         if "FAIL_INFO" in information:
             break
@@ -92,10 +109,18 @@ def run(offset=0, num_models=-1):
                 model_name=model_name, stan_file=information["model_code"]
             )
             end_build_model_start_fit = time()
-            fit = model.sample(
-                data=str(information["data"]), chains=2, seed=42, iter_warmup=500, 
-                iter_sampling=500, show_progress=True
-            )
+            
+            try:
+                with time_limit(60*60):
+                    fit = model.sample(
+                        data=str(information["data"]), chains=2, seed=42, iter_warmup=500, 
+                        iter_sampling=500, show_progress=True
+                    )
+            except TimeoutException as e:
+                print("{model_name}: timeout")
+                timeouts.append(model_name)
+                continue
+            
             end_fit = time()
             fit_info[model_name] = {
                 "summary": az.summary(fit),
@@ -107,6 +132,8 @@ def run(offset=0, num_models=-1):
             continue
 
     information.pop("FAIL_INFO")
+    for model_name in timeouts:
+        information[model_name] = (False, "1h Timeout")
     fit_info["FAIL_INFO"] = information
     return fit_info
 
