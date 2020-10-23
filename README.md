@@ -1,2 +1,3 @@
 # stan_models_runs
-Temporary repo for running models
+
+https://ahartikainen.github.io/stan_models_runs/
