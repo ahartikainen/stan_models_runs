@@ -85,7 +85,7 @@ jobs:
       - name: Install python dependencies (pip)
         run: |
           pip install --upgrade pip wheel
-          pip install pandas bokeh
+          pip install pandas bokeh panel
           pip install --upgrade git+https://github.com/arviz-devs/arviz
 
       - uses: actions/download-artifact@v2
