@@ -98,8 +98,7 @@ def get_model_and_data(offset=0, num_models=-1):
 def run(offset=0, num_models=-1):
     """Compile and sample models."""
     fit_info = {}
-    timeouts = []
-    for information in get_model_and_data(offset=offset, num_models=num_models):
+    for i, information in enumerate(get_model_and_data(offset=offset, num_models=num_models), offset):
         if "FAIL_INFO" in information:
             break
         try:
@@ -110,30 +109,35 @@ def run(offset=0, num_models=-1):
             )
             end_build_model_start_fit = time()
             
-            try:
-                with time_limit(60*60):
-                    fit = model.sample(
-                        data=str(information["data"]), chains=2, seed=42, iter_warmup=500, 
-                        iter_sampling=500, show_progress=True
-                    )
-            except TimeoutException as e:
-                print("{model_name}: timeout")
-                timeouts.append(model_name)
-                continue
+            if i in {
+                9,  # stuck warmup
+                32, # slow sampling
+                60, # seed 42 -> chain 1 stuck warmup
+                76, # slow sampling
+                
+            }:
+                fit_info[model_name] = {
+                    "summary": None,
+                    "duration_model_seconds": end_build_model_start_fit - start_build_model,
+                    "duration_fit_seconds": 60*60*5,
+                }
+            else:
+                fit = model.sample(
+                    data=str(information["data"]), chains=2, seed=42, iter_warmup=500, 
+                    iter_sampling=500, show_progress=True
+                )
             
-            end_fit = time()
-            fit_info[model_name] = {
-                "summary": az.summary(fit),
-                "duration_model_seconds": end_build_model_start_fit - start_build_model,
-                "duration_fit_seconds": end_fit - end_build_model_start_fit,
-            }
+                end_fit = time()
+                fit_info[model_name] = {
+                    "summary": az.summary(fit),
+                    "duration_model_seconds": end_build_model_start_fit - start_build_model,
+                    "duration_fit_seconds": end_fit - end_build_model_start_fit,
+                }
         except Exception as e:
             print(e)
             continue
 
     information.pop("FAIL_INFO")
-    for model_name in timeouts:
-        information[model_name] = (False, "1h Timeout")
     fit_info["FAIL_INFO"] = information
     return fit_info
 
