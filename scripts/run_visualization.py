@@ -14,7 +14,7 @@ def get_results(root_path):
     res = []
     i = 0
     root_path = Path(root_path)
-    for path in glob(root_path / "fit_results" / "*.pickle.gz"):
+    for path in glob(str(root_path / "fit_results" / "*.pickle.gz")):
         with gzip.open(path, mode="rb") as f:
             data = pickle.load(f)
 
