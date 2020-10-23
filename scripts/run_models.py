@@ -131,7 +131,7 @@ def run(offset=0, num_models=-1):
             else:
                 fit = model.sample(
                     data=str(information["data"]),
-                    chains=2,
+                    chains=8,
                     seed=42,
                     iter_warmup=500,
                     iter_sampling=500,
