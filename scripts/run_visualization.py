@@ -1,4 +1,5 @@
 import gzip
+import os
 import pickle
 from glob import glob
 from pathlib import Path
