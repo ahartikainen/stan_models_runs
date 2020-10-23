@@ -1,0 +1,4 @@
+theme: jekyll-theme-cayman
+title: Stan compilation and sampling time comparison
+description: Comparison of compilation and sampling times
+show_downloads: false
