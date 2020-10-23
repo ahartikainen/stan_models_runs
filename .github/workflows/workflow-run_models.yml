@@ -97,7 +97,7 @@ jobs:
         run: |
           mkdir visualize_dir
           cd visualize_dir
-          python ../scripts/run_visualize.py
+          python ../scripts/run_visualization.py
 
       - uses: actions/upload-artifact@v2
         with:
