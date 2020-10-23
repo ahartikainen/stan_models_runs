@@ -3,8 +3,8 @@ import gzip
 import logging
 import os
 import pickle
-import signal
 import shutil
+import signal
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
@@ -23,13 +23,18 @@ DB = posteriordb.PosteriorDatabase(POSTERIORDB_PATH)
 
 logging.basicConfig(level=logging.WARNING)
 
-class TimeoutException(Exception): pass
+
+class TimeoutException(Exception):
+    pass
+
 
 @contextmanager
 def time_limit(seconds):
     """Grabbed from https://stackoverflow.com/a/601168"""
+
     def signal_handler(signum, frame):
         raise TimeoutException("Timed out!")
+
     signal.signal(signal.SIGALRM, signal_handler)
     signal.alarm(seconds)
     try:
@@ -98,7 +103,9 @@ def get_model_and_data(offset=0, num_models=-1):
 def run(offset=0, num_models=-1):
     """Compile and sample models."""
     fit_info = {}
-    for i, information in enumerate(get_model_and_data(offset=offset, num_models=num_models), offset):
+    for i, information in enumerate(
+        get_model_and_data(offset=offset, num_models=num_models), offset
+    ):
         if "FAIL_INFO" in information:
             break
         try:
@@ -108,29 +115,34 @@ def run(offset=0, num_models=-1):
                 model_name=model_name, stan_file=information["model_code"]
             )
             end_build_model_start_fit = time()
-            
+
             if i in {
                 9,  # stuck warmup
-                32, # slow sampling
-                60, # seed 42 -> chain 1 stuck warmup
-                76, # slow sampling
-                
+                32,  # slow sampling
+                60,  # seed 42 -> chain 1 stuck warmup
+                76,  # slow sampling
             }:
                 fit_info[model_name] = {
                     "summary": None,
-                    "duration_model_seconds": end_build_model_start_fit - start_build_model,
-                    "duration_fit_seconds": 60*60*5,
+                    "duration_model_seconds": end_build_model_start_fit
+                    - start_build_model,
+                    "duration_fit_seconds": 60 * 60 * 5,
                 }
             else:
                 fit = model.sample(
-                    data=str(information["data"]), chains=2, seed=42, iter_warmup=500, 
-                    iter_sampling=500, show_progress=True
+                    data=str(information["data"]),
+                    chains=2,
+                    seed=42,
+                    iter_warmup=500,
+                    iter_sampling=500,
+                    show_progress=True,
                 )
-            
+
                 end_fit = time()
                 fit_info[model_name] = {
                     "summary": az.summary(fit),
-                    "duration_model_seconds": end_build_model_start_fit - start_build_model,
+                    "duration_model_seconds": end_build_model_start_fit
+                    - start_build_model,
                     "duration_fit_seconds": end_fit - end_build_model_start_fit,
                 }
         except Exception as e:
@@ -156,7 +168,9 @@ def process_models(offset, num_models):
     for i, (key, values) in enumerate(fits.items(), offset):
         if key == "FAIL_INFO":
             print("\n\nFAIL / SUCCESS")
-            print(f"{sum(not item for item, _ in values.values())} / {sum(item for item, _ in values.values())}\n\n")
+            print(
+                f"{sum(not item for item, _ in values.values())} / {sum(item for item, _ in values.values())}\n\n"
+            )
             for model, success in values.items():
                 if success[0]:
                     print(f"model: {success[0]} <- {model}")

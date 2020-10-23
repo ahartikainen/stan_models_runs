@@ -25,7 +25,13 @@ def get_results(root_path):
 
             m_sec, f_sec = info["duration_model_seconds"], info["duration_fit_seconds"]
             res.append(
-                {"duration_model": m_sec, "duration_fit": f_sec, "name": name, "i": i}
+                {
+                    "duration_model": m_sec,
+                    "duration_fit": f_sec if f_sec != 60 * 60 * 5 else 0,
+                    "name": name,
+                    "i": i,
+                    "fit_color": "lime" if f_sec != 60 * 60 * 5 else "darkgrey",
+                }
             )
             i += 1
 
@@ -40,39 +46,39 @@ def get_results(root_path):
         ("Fit Duration", "@duration_fit"),
     ]
 
-    p = figure(
-        width=400,
-        height=300,
+    p_model_time = figure(
+        sizing_mode="stretch_both",
+        max_height=400,
         output_backend="webgl",
         title="Model compilation comparison",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
     )
-    p.add_tools(hover_tool)
+    p_model_time.add_tools(hover_tool)
 
-    p.circle(x="i", y="duration_model", size=10, source=cds)
+    p_model_time.circle(
+        x="i", y="duration_model", size=10, color="dodgerblue", source=cds
+    )
 
-    p.yaxis.axis_label = "Compilation time (seconds)"
-    p.xaxis.axis_label = "Model names (see hover)"
+    p_model_time.yaxis.axis_label = "Compilation time (seconds)"
+    p_model_time.xaxis.axis_label = "Model names (see hover)"
 
-    pn.pane.Bokeh(p)
-
-    p1 = figure(
-        width=400,
-        height=300,
+    p_fit_time = figure(
+        sizing_mode="stretch_both",
+        max_height=400,
         output_backend="webgl",
-        title="Fit sampling comparison",
+        title="Sampling comparison",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
     )
-    p1.add_tools(hover_tool)
+    p_fit_time.add_tools(hover_tool)
 
-    p1.circle(x="i", y="duration_fit", size=10, source=cds, color="red")
+    p_fit_time.circle(x="i", y="duration_fit", size=10, source=cds, color="fit_color")
 
-    p1.yaxis.axis_label = "Sampling time (seconds)"
-    p1.xaxis.axis_label = "Model names (see hover)"
+    p_fit_time.yaxis.axis_label = "Sampling time (seconds)"
+    p_fit_time.xaxis.axis_label = "Model names (see hover)"
 
-    panel = pn.Row(p, p1)
+    panel = pn.Column(p_model_time, p_fit_time, sizing_mode="stretch_both")
 
     os.makedirs("./results")
     panel.save("results/test.html", resources=INLINE)
