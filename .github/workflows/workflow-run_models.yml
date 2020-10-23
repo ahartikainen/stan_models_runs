@@ -90,7 +90,7 @@ jobs:
 
       - uses: actions/download-artifact@v2
         with:
-          name: fit_data
+          name: fit_results
           path: fit_results
 
       - name: Run visualize
