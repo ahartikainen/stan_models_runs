@@ -81,7 +81,7 @@ def get_results(root_path):
     panel = pn.Column(p_model_time, p_fit_time, sizing_mode="stretch_both")
 
     os.makedirs("./results")
-    panel.save("results/test.html", resources=INLINE)
+    panel.save("results/posteriordb_sampling_stan.html", resources=INLINE)
 
 
 if __name__ == "__main__":

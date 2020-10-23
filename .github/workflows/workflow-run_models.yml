@@ -103,3 +103,15 @@ jobs:
         with:
           name: visualization
           path: visualize_dir/results/*.html
+
+      - name: Update docs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout gh_pages
+          git pull
+          mv -f visualize_dir/results/*.html docs/
+          git add docs
+          git commit -m "update html"
+          git push
+        if: github.ref == 'refs/heads/main'
