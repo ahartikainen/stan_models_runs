@@ -24,6 +24,7 @@ def get_results(root_path):
                 continue
 
             m_sec, f_sec = info["duration_model_seconds"], info["duration_fit_seconds"]
+            timing = info["stan_timing"]
             res.append(
                 {
                     "duration_model": m_sec,
@@ -31,6 +32,11 @@ def get_results(root_path):
                     "name": name,
                     "i": i,
                     "fit_color": "lime" if f_sec != 60 * 60 * 5 else "darkgrey",
+                    **(
+                        {"timing": tuple(map(tuple, timing.values.tolist()))}
+                        if timing is not None
+                        else {"timing": tuple()}
+                    ),
                 }
             )
             i += 1
@@ -44,6 +50,7 @@ def get_results(root_path):
         ("Index", "@i"),
         ("Model Duration", "@duration_model"),
         ("Fit Duration", "@duration_fit"),
+        ("Timing", "@timing"),
     ]
 
     p_model_time = figure(

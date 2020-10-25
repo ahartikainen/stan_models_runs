@@ -143,6 +143,7 @@ def run(offset=0, num_models=-1):
                     "duration_model_seconds": end_build_model_start_fit
                     - start_build_model,
                     "duration_fit_seconds": 60 * 60 * 5,
+                    "stan_timing": None,
                 }
             else:
                 fit = model.sample(
