@@ -73,7 +73,7 @@ def get_model_and_data(offset=0, num_models=-1):
             try:
                 model_name = p.posterior_info["model_name"]
                 data_name = p.posterior_info["data_name"]
-                model_data = f"{data_name}_{model_name}"
+                model_data = f"{data_name}-{model_name}"
                 try:
                     model_code = Path(DB.get_model_code_path(model_name, "stan"))
                 except FileNotFoundError:
@@ -125,7 +125,7 @@ def run(offset=0, num_models=-1):
         if "FAIL_INFO" in information:
             break
         try:
-            model_name = f'{information["data_name"]}_{information["model_name"]}'
+            model_name = f'{information["data_name"]}-{information["model_name"]}'
             start_build_model = time()
             model = cmdstanpy.CmdStanModel(
                 model_name=model_name, stan_file=information["model_code"]
