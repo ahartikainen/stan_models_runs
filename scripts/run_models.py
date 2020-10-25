@@ -3,6 +3,7 @@ import gzip
 import logging
 import os
 import pickle
+import re
 import shutil
 import signal
 import tempfile
@@ -14,6 +15,7 @@ import arviz as az
 import click
 import cmdstanpy
 import numpy as np
+import pandas as pd
 import posteriordb
 import ujson as json
 
@@ -28,19 +30,33 @@ class TimeoutException(Exception):
     pass
 
 
-@contextmanager
-def time_limit(seconds):
-    """Grabbed from https://stackoverflow.com/a/601168"""
+def get_timing(path):
+    capture = 0
+    timing = {}
+    with open(path) as f:
+        for line in f:
+            if capture or (line.startswith("#") and "Elapsed Time" in line):
+                capture += 1
+                duration = float(
+                    re.search(r"(\d+\.\d*)\s+seconds", line, flags=re.IGNORECASE).group(
+                        1
+                    )
+                )
+                if "warm-up" in line.lower():
+                    key = "warm-up"
+                elif "sampling" in line.lower():
+                    key = "sampling"
+                timing[key] = duration
+            if capture > 1:
+                break
+    return timing
 
-    def signal_handler(signum, frame):
-        raise TimeoutException("Timed out!")
 
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(seconds)
-    try:
-        yield
-    finally:
-        signal.alarm(0)
+def get_timing_from_fit(fit):
+    timing_chains = {}
+    for i, path in enumerate(fit.runset.csv_files, 1):
+        timing_chains[i] = get_timing(path)
+    return pd.DataFrame.from_dict(timing_chains, orient="index")
 
 
 def get_model_and_data(offset=0, num_models=-1):
@@ -139,11 +155,15 @@ def run(offset=0, num_models=-1):
                 )
 
                 end_fit = time()
+
+                timing_info = get_timing_from_fit(fit)
+
                 fit_info[model_name] = {
                     "summary": az.summary(fit),
                     "duration_model_seconds": end_build_model_start_fit
                     - start_build_model,
                     "duration_fit_seconds": end_fit - end_build_model_start_fit,
+                    "stan_timing": timing_info,
                 }
         except Exception as e:
             print(e)
