@@ -25,6 +25,9 @@ def get_results(root_path):
 
             m_sec, f_sec = info["duration_model_seconds"], info["duration_fit_seconds"]
             timing = info["stan_timing"]
+            chains = info["chains"]
+            draws = info["draws"]
+            warmup_draws = info["warmup_draws"]
             res.append(
                 {
                     "duration_model": m_sec,
@@ -37,6 +40,9 @@ def get_results(root_path):
                         if timing is not None
                         else {"timing": tuple()}
                     ),
+                    "warmup_draws": warmup_draws,
+                    "draws": draws,
+                    "chains": chains,
                 }
             )
             i += 1
@@ -51,6 +57,9 @@ def get_results(root_path):
         ("Model Duration", "@duration_model"),
         ("Fit Duration", "@duration_fit"),
         ("Timing", "@timing"),
+        ("Warmup draws", "@warmup_draws"),
+        ("Draws", "@draws"),
+        ("Chains", "@chains"),
     ]
 
     p_model_time = figure(
@@ -74,7 +83,7 @@ def get_results(root_path):
         sizing_mode="stretch_both",
         max_height=400,
         output_backend="webgl",
-        title="Sampling comparison",
+        title="Sampling comparison (warmup: {warmup_draws}, draws: {draws}, chains: {chains})",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
     )
@@ -83,7 +92,7 @@ def get_results(root_path):
     p_fit_time.circle(x="i", y="duration_fit", size=10, source=cds, color="fit_color")
 
     p_fit_time.yaxis.axis_label = "Sampling time (seconds)"
-    p_fit_time.xaxis.axis_label = "Model names (see hover)"
+    p_fit_time.xaxis.axis_label = "Models (see model info with hover)"
 
     panel = pn.Column(p_model_time, p_fit_time, sizing_mode="stretch_both")
 

@@ -26,10 +26,6 @@ DB = posteriordb.PosteriorDatabase(POSTERIORDB_PATH)
 logging.basicConfig(level=logging.WARNING)
 
 
-class TimeoutException(Exception):
-    pass
-
-
 def get_timing(path):
     capture = 0
     timing = {}
