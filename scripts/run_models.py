@@ -122,7 +122,7 @@ def run(offset=0, num_models=-1):
             break
         try:
             model_name = f'{information["data_name"]}-{information["model_name"]}'
-            print(f"Starting process for model: {model_name}")
+            print(f"Starting process for model: {model_name}", flush=True)
             start_build_model = time()
             model = cmdstanpy.CmdStanModel(
                 model_name=model_name, stan_file=information["model_code"]
@@ -134,6 +134,7 @@ def run(offset=0, num_models=-1):
                 32,  # slow sampling
                 60,  # seed 42 -> chain 1 stuck warmup
                 76,  # slow sampling
+                77, # slow sampling
             }:
                 fit_info[model_name] = {
                     "summary": None,
