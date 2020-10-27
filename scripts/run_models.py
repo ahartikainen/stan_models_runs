@@ -115,6 +115,11 @@ def get_model_and_data(offset=0, num_models=-1):
 def run(offset=0, num_models=-1):
     """Compile and sample models."""
     fit_info = {}
+    
+    chains = 4
+    warmup_draws = 500
+    draws = 500
+    
     for i, information in enumerate(
         get_model_and_data(offset=offset, num_models=num_models), offset
     ):
@@ -142,14 +147,17 @@ def run(offset=0, num_models=-1):
                     - start_build_model,
                     "duration_fit_seconds": 60 * 60 * 5,
                     "stan_timing": None,
+                    "chains": 0,
+                    "draws": 0,
+                    "warmup_draws": 0,
                 }
             else:
                 fit = model.sample(
                     data=str(information["data"]),
-                    chains=4,
+                    chains=chains,
                     seed=42,
-                    iter_warmup=500,
-                    iter_sampling=500,
+                    iter_warmup=warmup_draws,
+                    iter_sampling=draws,
                     show_progress=True,
                 )
 
@@ -163,6 +171,9 @@ def run(offset=0, num_models=-1):
                     - start_build_model,
                     "duration_fit_seconds": end_fit - end_build_model_start_fit,
                     "stan_timing": timing_info,
+                    "chains": chains,
+                    "draws": draws,
+                    "warmup_draws": warmup_draws,
                 }
         except Exception as e:
             print(e)
