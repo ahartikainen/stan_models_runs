@@ -37,11 +37,11 @@ def get_results(root_path):
                     "fit_color": "lime" if f_sec != 60 * 60 * 5 else "darkgrey",
                     **(
                         {
-                            "timing_warmup": tuple(map(tuple, timing["warm-up"].values.tolist())), 
-                            "timing_sampling": tuple(map(tuple, timing["sampling"].values.tolist()))
+                            "timing_warmup": timing["warm-up"].tolist(), 
+                            "timing_sampling": timing["sampling"].tolist(),
                         }
                         if timing is not None
-                        else {"timing_warmup": tuple(), "timing_sampling": tuple()}
+                        else {"timing_warmup": [], "timing_sampling": []}
                     ),
                     "warmup_draws": warmup_draws,
                     "draws": draws,
