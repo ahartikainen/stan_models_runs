@@ -31,14 +31,17 @@ def get_results(root_path):
             res.append(
                 {
                     "duration_model": m_sec,
-                    "duration_fit": f_sec if f_sec != 60 * 60 * 5 else 0,
+                    "duration_fit": f_sec if f_sec != 60 * 60 * 5 else 1e-2,
                     "name": name,
                     "i": i,
                     "fit_color": "lime" if f_sec != 60 * 60 * 5 else "darkgrey",
                     **(
-                        {"timing": tuple(map(tuple, timing.values.tolist()))}
+                        {
+                            "timing_warmup": tuple(map(tuple, timing["warm-up"].values.tolist())), 
+                            "timing_sampling": tuple(map(tuple, timing["sampling"].values.tolist()))
+                        }
                         if timing is not None
-                        else {"timing": tuple()}
+                        else {"timing_warmup": tuple(), "timing_sampling": tuple()}
                     ),
                     "warmup_draws": warmup_draws,
                     "draws": draws,
@@ -54,9 +57,10 @@ def get_results(root_path):
     hover_tool.tooltips = [
         ("Model name", "@name"),
         ("Index", "@i"),
-        ("Model Duration", "@duration_model"),
-        ("Fit Duration", "@duration_fit"),
-        ("Timing", "@timing"),
+        ("Model Duration", "@duration_model{1.1}"),
+        ("Fit Duration", "@duration_fit{1.1}"),
+        ("Timing_warmup", "@timing_warmup"),
+        ("Timing_sampling", "@timing_sampling"),
         ("Warmup draws", "@warmup_draws"),
         ("Draws", "@draws"),
         ("Chains", "@chains"),
@@ -86,6 +90,7 @@ def get_results(root_path):
         title=f"Sampling comparison (warmup: {warmup_draws}, draws: {draws}, chains: {chains})",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
+        y_axis_type="log",
     )
     p_fit_time.add_tools(hover_tool)
 
