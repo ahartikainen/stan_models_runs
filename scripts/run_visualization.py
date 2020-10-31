@@ -1,6 +1,7 @@
 import gzip
 import os
 import pickle
+from datetime import datetime
 from glob import glob
 from pathlib import Path
 
@@ -70,7 +71,7 @@ def get_results(root_path):
         sizing_mode="stretch_both",
         max_height=400,
         output_backend="webgl",
-        title="Model compilation comparison",
+        title=f"Model compilation comparison: Updated {datetime.utcnow().date()} {datetime.utcnow():%H:%M} UTC",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
     )
@@ -106,8 +107,6 @@ def get_results(root_path):
 
 
 if __name__ == "__main__":
-    import datetime
-
-    print(datetime.datetime.now())
+    print(datetime.utcnow())
     get_results("..")
-    print(datetime.datetime.now())
+    print(datetime.utcnow())
