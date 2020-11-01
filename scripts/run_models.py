@@ -47,13 +47,37 @@ def get_timing(path):
                 break
     return timing
 
-
 def get_timing_from_fit(fit):
     timing_chains = {}
     for i, path in enumerate(fit.runset.csv_files, 1):
         timing_chains[i] = get_timing(path)
     return pd.DataFrame.from_dict(timing_chains, orient="index")
 
+
+def get_gradient_timing(path):
+    gradient_time = None
+    with open(path, "r") as f:
+        match = re.search(r"Gradient evaluation took (\d+.\d+) seconds", f.read())
+        if match:
+            gradient_time = float(match.group(1))
+    return gradient_time
+
+def get_gradient_timing_from_fit(fit):
+    gradient_times = []
+    for path in fit.runset.stdout_files:
+        gradient_times.append(get_gradient_timing(path))
+    return gradient_times
+
+def get_max_treedepth(fit):
+    depths = []
+    for path in fit.runset.stdout_files:
+        depth = None
+        with open(path, "r") as f:
+            match = re.search(r"max_depth = (\d+)", f.read())
+            if match:
+                depth = int(match.group(1))
+        depths.append(depth)
+    return depths
 
 def get_model_and_data(offset=0, num_models=-1):
     """Get model and data from posteriordb."""
@@ -154,14 +178,29 @@ def run(offset=0, num_models=-1):
 
                 end_fit = time()
 
-                timing_info = get_timing_from_fit(fit)
+                stan_timing_info = get_timing_from_fit(fit)
+                gradient_timing_info = get_gradient_timing(fit)
+                divergent = fit.draws()[:, :, np.array(fit.column_names) == "divergent__"].astype(bool)
+                n_divergent = divergent.sum()
+                treedepth = fit.draws()[:, :, np.array(fit.column_names) == "treedepth__"]
+                max_tree_depth_value = get_max_treedepth(fit)
+                if set(max_tree_depth_value) > 1:
+                    print("WHAT")
+                n_max_tree = (treedepth == max_tree_depth_value).sum(0)
+                n_leapfrogs = fit.draws()[:, :, np.array(fit.column_names) == "n_leapfrog__"].astype(int)
+
 
                 fit_info[model_name] = {
                     "summary": az.summary(fit),
-                    "duration_model_seconds": end_build_model_start_fit
-                    - start_build_model,
+                    "duration_model_seconds": end_build_model_start_fit - start_build_model,
                     "duration_fit_seconds": end_fit - end_build_model_start_fit,
-                    "stan_timing": timing_info,
+                    "stan_timing": stan_timing_info,
+                    "stan_gradient_timing": gradient_timing_info,
+                    "divergent": divergent,
+                    "n_divergent": n_divergent,
+                    "treedepth": treedepth,
+                    "n_max_tree": n_max_tree,
+                    "n_leapfrogs": n_leapfrogs,
                 }
         except Exception as e:
             print(e)
