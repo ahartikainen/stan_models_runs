@@ -198,7 +198,7 @@ def run(offset=0, num_models=-1):
                 end_fit = time()
 
                 stan_timing_info = get_timing_from_fit(fit)
-                gradient_timing_info = get_gradient_timing(fit)
+                gradient_timing_info = get_gradient_timing_from_fit(fit)
                 divergent = fit.draws()[
                     :, :, np.array(fit.column_names) == "divergent__"
                 ].astype(bool)
