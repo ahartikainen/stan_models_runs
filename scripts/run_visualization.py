@@ -44,7 +44,7 @@ def get_results(root_path):
                     "duration_fit": f_sec if f_sec is not None else 1e-2,
                     "name": name,
                     "i": i,
-                    "fit_color": "lime" if f_sec is None else "darkgrey",
+                    "fit_color": "lime" if f_sec is not None else "darkgrey",
                     **info,
                 }
             )
