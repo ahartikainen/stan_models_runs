@@ -25,7 +25,7 @@ def get_results(root_path):
                 continue
 
             timing = info.pop("stan_timing", None)
-            if timing:
+            if timing is not None:
                 info["timing_warmup"] = timing["warm-up"].tolist()
                 info["timing_sampling"] = timing["sampling"].tolist()
 
