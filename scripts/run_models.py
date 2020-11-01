@@ -215,15 +215,6 @@ def run(offset=0, num_models=-1):
                     .sum(0)
                 )
 
-                - Time in warmup
-                - Time sampling
-                - Number of divergences
-                - Number of max treedepths
-                - Minimum ESS/draw in sampling
-                - Minimum ESS/second in sampling
-                - Number of leapfrog steps
-                - Time per gradient
-
                 summary = az.summary(fit)
 
                 fit_info[model_name] = {
