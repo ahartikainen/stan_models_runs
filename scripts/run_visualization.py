@@ -13,6 +13,7 @@ from bokeh.resources import INLINE
 
 
 def get_results(root_path):
+    draws = 0
     res = []
     i = 0
     root_path = Path(root_path)
@@ -28,6 +29,11 @@ def get_results(root_path):
             if timing is not None:
                 info["timing_warmup"] = timing["warm-up"].tolist()
                 info["timing_sampling"] = timing["sampling"].tolist()
+               
+            if not draws:
+                draws = info.get("draws", 0)
+                warmup_draws = info.get("warmup_draws", 0)
+                chains = info.get("chains", 0)
 
             m_sec, f_sec = info.pop("cmdstanpy_model_duration", None), info.pop(
                 "cmdstanpy_fit_duration", None
@@ -87,7 +93,7 @@ def get_results(root_path):
         sizing_mode="stretch_both",
         max_height=400,
         output_backend="webgl",
-        title=f"Sampling comparison (warmup: {info['warmup_draws']}, draws: {info['draws']}, chains: {info['chains']})",
+        title=f"Sampling comparison (warmup: {warmup_draws}, draws: {draws}, chains: {chains})",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
         y_axis_type="log",
