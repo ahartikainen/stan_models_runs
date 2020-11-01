@@ -1,6 +1,7 @@
 import gzip
 import os
 import pickle
+from datetime import datetime
 from glob import glob
 from pathlib import Path
 
@@ -31,14 +32,17 @@ def get_results(root_path):
             res.append(
                 {
                     "duration_model": m_sec,
-                    "duration_fit": f_sec if f_sec != 60 * 60 * 5 else 0,
+                    "duration_fit": f_sec if f_sec != 60 * 60 * 5 else 1e-2,
                     "name": name,
                     "i": i,
                     "fit_color": "lime" if f_sec != 60 * 60 * 5 else "darkgrey",
                     **(
-                        {"timing": tuple(map(tuple, timing.values.tolist()))}
+                        {
+                            "timing_warmup": timing["warm-up"].tolist(),
+                            "timing_sampling": timing["sampling"].tolist(),
+                        }
                         if timing is not None
-                        else {"timing": tuple()}
+                        else {"timing_warmup": [], "timing_sampling": []}
                     ),
                     "warmup_draws": warmup_draws,
                     "draws": draws,
@@ -54,9 +58,10 @@ def get_results(root_path):
     hover_tool.tooltips = [
         ("Model name", "@name"),
         ("Index", "@i"),
-        ("Model Duration", "@duration_model"),
-        ("Fit Duration", "@duration_fit"),
-        ("Timing", "@timing"),
+        ("Model Duration", "@duration_model{1.1}"),
+        ("Fit Duration", "@duration_fit{1.1}"),
+        ("Timing_warmup", "@timing_warmup"),
+        ("Timing_sampling", "@timing_sampling"),
         ("Warmup draws", "@warmup_draws"),
         ("Draws", "@draws"),
         ("Chains", "@chains"),
@@ -66,7 +71,7 @@ def get_results(root_path):
         sizing_mode="stretch_both",
         max_height=400,
         output_backend="webgl",
-        title="Model compilation comparison",
+        title=f"Model compilation comparison: Updated {datetime.utcnow().date()} {datetime.utcnow():%H:%M} UTC",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
     )
@@ -83,9 +88,10 @@ def get_results(root_path):
         sizing_mode="stretch_both",
         max_height=400,
         output_backend="webgl",
-        title="Sampling comparison (warmup: {warmup_draws}, draws: {draws}, chains: {chains})",
+        title=f"Sampling comparison (warmup: {warmup_draws}, draws: {draws}, chains: {chains})",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
+        y_axis_type="log",
     )
     p_fit_time.add_tools(hover_tool)
 
@@ -101,8 +107,6 @@ def get_results(root_path):
 
 
 if __name__ == "__main__":
-    import datetime
-
-    print(datetime.datetime.now())
+    print(datetime.utcnow())
     get_results("..")
-    print(datetime.datetime.now())
+    print(datetime.utcnow())

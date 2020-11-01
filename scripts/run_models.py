@@ -47,6 +47,7 @@ def get_timing(path):
                 break
     return timing
 
+
 def get_timing_from_fit(fit):
     timing_chains = {}
     for i, path in enumerate(fit.runset.csv_files, 1):
@@ -62,11 +63,13 @@ def get_gradient_timing(path):
             gradient_time = float(match.group(1))
     return gradient_time
 
+
 def get_gradient_timing_from_fit(fit):
     gradient_times = []
     for path in fit.runset.stdout_files:
         gradient_times.append(get_gradient_timing(path))
     return gradient_times
+
 
 def get_max_treedepth(fit):
     depths = []
@@ -78,6 +81,7 @@ def get_max_treedepth(fit):
                 depth = int(match.group(1))
         depths.append(depth)
     return depths
+
 
 def get_model_and_data(offset=0, num_models=-1):
     """Get model and data from posteriordb."""
@@ -139,6 +143,11 @@ def get_model_and_data(offset=0, num_models=-1):
 def run(offset=0, num_models=-1):
     """Compile and sample models."""
     fit_info = {}
+
+    chains = 4
+    warmup_draws = 500
+    draws = 500
+
     for i, information in enumerate(
         get_model_and_data(offset=offset, num_models=num_models), offset
     ):
@@ -146,7 +155,7 @@ def run(offset=0, num_models=-1):
             break
         try:
             model_name = f'{information["data_name"]}-{information["model_name"]}'
-            print(f"Starting process for model: {model_name}")
+            print(f"Starting process for model: {model_name}", flush=True)
             start_build_model = time()
             model = cmdstanpy.CmdStanModel(
                 model_name=model_name, stan_file=information["model_code"]
@@ -158,6 +167,7 @@ def run(offset=0, num_models=-1):
                 32,  # slow sampling
                 60,  # seed 42 -> chain 1 stuck warmup
                 76,  # slow sampling
+                77,  # slow sampling
             }:
                 fit_info[model_name] = {
                     "summary": None,
@@ -165,14 +175,23 @@ def run(offset=0, num_models=-1):
                     - start_build_model,
                     "duration_fit_seconds": 60 * 60 * 5,
                     "stan_timing": None,
+                    "stan_gradient_timing": [],
+                    "divergent": [],
+                    "n_divergent": 0,
+                    "treedepth": [],
+                    "n_max_tree": 0,
+                    "n_leapfrogs": [],
+                    "chains": 0,
+                    "draws": 0,
+                    "warmup_draws": 0,
                 }
             else:
                 fit = model.sample(
                     data=str(information["data"]),
-                    chains=4,
+                    chains=chains,
                     seed=42,
-                    iter_warmup=500,
-                    iter_sampling=500,
+                    iter_warmup=warmup_draws,
+                    iter_sampling=draws,
                     show_progress=True,
                 )
 
@@ -180,19 +199,25 @@ def run(offset=0, num_models=-1):
 
                 stan_timing_info = get_timing_from_fit(fit)
                 gradient_timing_info = get_gradient_timing(fit)
-                divergent = fit.draws()[:, :, np.array(fit.column_names) == "divergent__"].astype(bool)
+                divergent = fit.draws()[
+                    :, :, np.array(fit.column_names) == "divergent__"
+                ].astype(bool)
                 n_divergent = divergent.sum()
-                treedepth = fit.draws()[:, :, np.array(fit.column_names) == "treedepth__"]
+                treedepth = fit.draws()[
+                    :, :, np.array(fit.column_names) == "treedepth__"
+                ]
                 max_tree_depth_value = get_max_treedepth(fit)
                 if set(max_tree_depth_value) > 1:
                     print("WHAT")
                 n_max_tree = (treedepth == max_tree_depth_value).sum(0)
-                n_leapfrogs = fit.draws()[:, :, np.array(fit.column_names) == "n_leapfrog__"].astype(int)
-
+                n_leapfrogs = fit.draws()[
+                    :, :, np.array(fit.column_names) == "n_leapfrog__"
+                ].astype(int)
 
                 fit_info[model_name] = {
                     "summary": az.summary(fit),
-                    "duration_model_seconds": end_build_model_start_fit - start_build_model,
+                    "duration_model_seconds": end_build_model_start_fit
+                    - start_build_model,
                     "duration_fit_seconds": end_fit - end_build_model_start_fit,
                     "stan_timing": stan_timing_info,
                     "stan_gradient_timing": gradient_timing_info,
@@ -201,6 +226,9 @@ def run(offset=0, num_models=-1):
                     "treedepth": treedepth,
                     "n_max_tree": n_max_tree,
                     "n_leapfrogs": n_leapfrogs,
+                    "chains": chains,
+                    "draws": draws,
+                    "warmup_draws": warmup_draws,
                 }
         except Exception as e:
             print(e)
