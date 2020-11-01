@@ -71,15 +71,19 @@ def get_gradient_timing_from_fit(fit):
     return gradient_times
 
 
-def get_max_treedepth(fit):
+def get_max_treedepth(path):
+    depth = None
+    with open(path, "r") as f:
+        match = re.search(r"max_depth = (\d+)", f.read())
+        if match:
+            depth = int(match.group(1))
+    return depth
+
+
+def get_max_treedepth_from_fit(fit):
     depths = []
     for path in fit.runset.stdout_files:
-        depth = None
-        with open(path, "r") as f:
-            match = re.search(r"max_depth = (\d+)", f.read())
-            if match:
-                depth = int(match.group(1))
-        depths.append(depth)
+        depths.append(get_max_treedepth(path))
     return depths
 
 
@@ -176,10 +180,8 @@ def run(offset=0, num_models=-1):
                     "duration_fit_seconds": 60 * 60 * 5,
                     "stan_timing": None,
                     "stan_gradient_timing": [],
-                    "divergent": [],
-                    "n_divergent": 0,
-                    "treedepth": [],
-                    "n_max_tree": 0,
+                    "n_divergent": [],
+                    "n_max_tree": [],
                     "n_leapfrogs": [],
                     "chains": 0,
                     "draws": 0,
@@ -199,20 +201,26 @@ def run(offset=0, num_models=-1):
 
                 stan_timing_info = get_timing_from_fit(fit)
                 gradient_timing_info = get_gradient_timing_from_fit(fit)
+
                 divergent = fit.draws()[
                     :, :, np.array(fit.column_names) == "divergent__"
                 ].astype(bool)
-                n_divergent = divergent.sum()
+                n_divergent = divergent.sum(0)
+
                 treedepth = fit.draws()[
                     :, :, np.array(fit.column_names) == "treedepth__"
                 ]
-                max_tree_depth_value = get_max_treedepth(fit)
-                if set(max_tree_depth_value) > 1:
-                    print("WHAT")
+                max_tree_depth_value = get_max_treedepth_from_fit(fit)
+                if len(set(max_tree_depth_value)) > 1:
+                    print("WHAT", max_tree_depth_value)
+                max_tree_depth_value = max_tree_depth_value[0]
                 n_max_tree = (treedepth == max_tree_depth_value).sum(0)
-                n_leapfrogs = fit.draws()[
-                    :, :, np.array(fit.column_names) == "n_leapfrog__"
-                ].astype(int)
+
+                n_leapfrogs = (
+                    fit.draws()[:, :, np.array(fit.column_names) == "n_leapfrog__"]
+                    .astype(int)
+                    .sum(0)
+                )
 
                 fit_info[model_name] = {
                     "summary": az.summary(fit),
@@ -221,9 +229,7 @@ def run(offset=0, num_models=-1):
                     "duration_fit_seconds": end_fit - end_build_model_start_fit,
                     "stan_timing": stan_timing_info,
                     "stan_gradient_timing": gradient_timing_info,
-                    "divergent": divergent,
                     "n_divergent": n_divergent,
-                    "treedepth": treedepth,
                     "n_max_tree": n_max_tree,
                     "n_leapfrogs": n_leapfrogs,
                     "chains": chains,
@@ -244,6 +250,7 @@ def run(offset=0, num_models=-1):
 @click.option("--num_models", default=-1, help="Iterate through # of models")
 def process_models(offset, num_models):
     """Run models and get results."""
+    print(DB.posterior_names()[offset:offset+num_models])
     fits = run(offset=offset, num_models=num_models)
     os.makedirs("./results", exist_ok=True)
     save_path = f"./results/results_offset_{offset}_num_models_{num_models}.pickle.gz"
@@ -279,6 +286,5 @@ if __name__ == "__main__":
 
     print(datetime.datetime.now())
     print(POSTERIORDB_PATH)
-    print(DB.posterior_names())
     process_models()
     print(datetime.datetime.now())
