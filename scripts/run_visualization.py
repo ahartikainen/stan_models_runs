@@ -24,29 +24,22 @@ def get_results(root_path):
             if name == "FAIL_INFO":
                 continue
 
-            m_sec, f_sec = info["duration_model_seconds"], info["duration_fit_seconds"]
-            timing = info["stan_timing"]
-            chains = info["chains"]
-            draws = info["draws"]
-            warmup_draws = info["warmup_draws"]
+            timing = info.pop("stan_timing", None)
+            if timing:
+                info["timing_warmup"] = timing["warm-up"].tolist()
+                info["timing_sampling"] = timing["sampling"].tolist()
+
+            m_sec, f_sec = info.pop("cmdstanpy_model_duration", None), info.pop(
+                "cmdstanpy_fit_duration", None
+            )
             res.append(
                 {
-                    "duration_model": m_sec,
-                    "duration_fit": f_sec if f_sec != 60 * 60 * 5 else 1e-2,
+                    "duration_model": m_sec if m_sec is not None else 1e-2,
+                    "duration_fit": f_sec if f_sec is not None else 1e-2,
                     "name": name,
                     "i": i,
-                    "fit_color": "lime" if f_sec != 60 * 60 * 5 else "darkgrey",
-                    **(
-                        {
-                            "timing_warmup": timing["warm-up"].tolist(),
-                            "timing_sampling": timing["sampling"].tolist(),
-                        }
-                        if timing is not None
-                        else {"timing_warmup": [], "timing_sampling": []}
-                    ),
-                    "warmup_draws": warmup_draws,
-                    "draws": draws,
-                    "chains": chains,
+                    "fit_color": "lime" if f_sec is None else "darkgrey",
+                    **info,
                 }
             )
             i += 1
@@ -62,6 +55,12 @@ def get_results(root_path):
         ("Fit Duration", "@duration_fit{1.1}"),
         ("Timing_warmup", "@timing_warmup"),
         ("Timing_sampling", "@timing_sampling"),
+        ("Gradient timing", "@stan_gradient_timing"),
+        ("Divergent", "@n_divergent"),
+        ("Max tree-depth", "@n_max_tree"),
+        ("Sum leapfrogs", "@n_leapfrogs"),
+        ("min ESS/draw", "@min_ess_per_draw"),
+        ("min ESS/second", "@min_ess_per_second"),
         ("Warmup draws", "@warmup_draws"),
         ("Draws", "@draws"),
         ("Chains", "@chains"),

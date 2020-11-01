@@ -173,19 +173,10 @@ def run(offset=0, num_models=-1):
                 76,  # slow sampling
                 77,  # slow sampling
             }:
+
                 fit_info[model_name] = {
-                    "summary": None,
-                    "duration_model_seconds": end_build_model_start_fit
+                    "cmdstanpy_model_duration": end_build_model_start_fit
                     - start_build_model,
-                    "duration_fit_seconds": 60 * 60 * 5,
-                    "stan_timing": None,
-                    "stan_gradient_timing": [],
-                    "n_divergent": [],
-                    "n_max_tree": [],
-                    "n_leapfrogs": [],
-                    "chains": 0,
-                    "draws": 0,
-                    "warmup_draws": 0,
                 }
             else:
                 fit = model.sample(
@@ -199,9 +190,11 @@ def run(offset=0, num_models=-1):
 
                 end_fit = time()
 
+                # Stan timings
                 stan_timing_info = get_timing_from_fit(fit)
-                gradient_timing_info = get_gradient_timing_from_fit(fit)
+                stan_gradient_timing_info = get_gradient_timing_from_fit(fit)
 
+                # Diagnostics
                 divergent = fit.draws()[
                     :, :, np.array(fit.column_names) == "divergent__"
                 ].astype(bool)
@@ -222,16 +215,28 @@ def run(offset=0, num_models=-1):
                     .sum(0)
                 )
 
+                - Time in warmup
+                - Time sampling
+                - Number of divergences
+                - Number of max treedepths
+                - Minimum ESS/draw in sampling
+                - Minimum ESS/second in sampling
+                - Number of leapfrog steps
+                - Time per gradient
+
+                summary = az.summary(fit)
+
                 fit_info[model_name] = {
-                    "summary": az.summary(fit),
-                    "duration_model_seconds": end_build_model_start_fit
+                    "cmdstanpy_model_duration": end_build_model_start_fit
                     - start_build_model,
-                    "duration_fit_seconds": end_fit - end_build_model_start_fit,
+                    "cmdstanpy_fit_duration": end_fit - end_build_model_start_fit,
                     "stan_timing": stan_timing_info,
-                    "stan_gradient_timing": gradient_timing_info,
+                    "stan_gradient_timing": stan_gradient_timing_info,
                     "n_divergent": n_divergent,
                     "n_max_tree": n_max_tree,
                     "n_leapfrogs": n_leapfrogs,
+                    "min_ess_per_draw": summary["ess_bulk"].min()/(draws*chains),
+                    "min_ess_per_second": summary["ess_bulk"].min()/stan_timing_info.values.sum(),
                     "chains": chains,
                     "draws": draws,
                     "warmup_draws": warmup_draws,
