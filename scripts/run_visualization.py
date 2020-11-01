@@ -87,7 +87,7 @@ def get_results(root_path):
         sizing_mode="stretch_both",
         max_height=400,
         output_backend="webgl",
-        title=f"Sampling comparison (warmup: {warmup_draws}, draws: {draws}, chains: {chains})",
+        title=f"Sampling comparison (warmup: {info['warmup_draws']}, draws: {info['draws']}, chains: {info['chains']})",
         toolbar_location="right",
         tools="pan,box_zoom,wheel_zoom,reset",
         y_axis_type="log",
