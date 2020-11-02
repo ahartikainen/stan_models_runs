@@ -29,7 +29,7 @@ def get_results(root_path):
             if timing is not None:
                 info["timing_warmup"] = timing["warm-up"].tolist()
                 info["timing_sampling"] = timing["sampling"].tolist()
-               
+
             if not draws:
                 draws = info.get("draws", 0)
                 warmup_draws = info.get("warmup_draws", 0)

@@ -34,9 +34,9 @@ def get_timing(path):
             if capture or (line.startswith("#") and "Elapsed Time" in line):
                 capture += 1
                 duration = float(
-                    re.search(r"(\d+.\d*e?-?\d+)\s+seconds", line, flags=re.IGNORECASE).group(
-                        1
-                    )
+                    re.search(
+                        r"(\d+.\d*e?-?\d+)\s+seconds", line, flags=re.IGNORECASE
+                    ).group(1)
                 )
                 if "warm-up" in line.lower():
                     key = "warm-up"
@@ -58,7 +58,9 @@ def get_timing_from_fit(fit):
 def get_gradient_timing(path):
     gradient_time = None
     with open(path, "r") as f:
-        match = re.search(r"Gradient evaluation took (\d+.\d*e?-?\d+) seconds", f.read())
+        match = re.search(
+            r"Gradient evaluation took (\d+.\d*e?-?\d+) seconds", f.read()
+        )
         if match:
             gradient_time = float(match.group(1))
     return gradient_time
@@ -204,7 +206,7 @@ def run(offset=0, num_models=-1):
                     :, :, np.array(fit.column_names) == "treedepth__"
                 ]
                 n_tree_depth = treedepth.sum(0).ravel()
-                
+
                 max_tree_depth_value = get_max_treedepth_from_fit(fit)
                 if len(set(max_tree_depth_value)) > 1:
                     print("WHAT", max_tree_depth_value)
@@ -216,23 +218,38 @@ def run(offset=0, num_models=-1):
                     .astype(int)
                     .sum(0)
                 )
-                
-                stan_gradient_timing_info = get_gradient_timing_from_fit(fit)
-                stan_gradient_timing_info_sampling = n_tree_depth / stan_timing_info["sampling"].values
 
+                stan_gradient_timing_info = get_gradient_timing_from_fit(fit)
+                stan_gradient_timing_info_sampling = (
+                    n_tree_depth / stan_timing_info["sampling"].values
+                )
 
                 summary = az.summary(fit)
-                
-                lp_ess_bulk = az.ess(fit.draws()[:, :, np.array(fit.column_names) == "lp__"].squeeze().T, method="bulk")
-                lp_ess_tail = az.ess(fit.draws()[:, :, np.array(fit.column_names) == "lp__"].squeeze().T, method="tail")
-                
-                min_ess_bulk_par = summary["ess_bulk"].idxmin() if summary["ess_bulk"] < lp_ess_bulk else "lp__"
-                min_ess_bulk = min(summary["ess_bulk"].min(), lp_ess_bulk)),
-                min_ess_tail_par = summary["ess_tail"].idxmin() if summary["ess_tail"] < lp_ess_tail else "lp__"
-                min_ess_tail = min(summary["ess_tail"].min(), lp_ess_tail)),
-                
+
+                lp_ess_bulk = az.ess(
+                    fit.draws()[:, :, np.array(fit.column_names) == "lp__"].squeeze().T,
+                    method="bulk",
+                )
+                lp_ess_tail = az.ess(
+                    fit.draws()[:, :, np.array(fit.column_names) == "lp__"].squeeze().T,
+                    method="tail",
+                )
+
+                min_ess_bulk_par = (
+                    summary["ess_bulk"].idxmin()
+                    if summary["ess_bulk"] < lp_ess_bulk
+                    else "lp__"
+                )
+                min_ess_bulk = min(summary["ess_bulk"].min(), lp_ess_bulk)
+                min_ess_tail_par = (
+                    summary["ess_tail"].idxmin()
+                    if summary["ess_tail"] < lp_ess_tail
+                    else "lp__"
+                )
+                min_ess_tail = min(summary["ess_tail"].min(), lp_ess_tail)
+
                 stan_total_time = stan_timing_info.values.sum()
-    
+
                 fit_info[model_name] = {
                     "cmdstanpy_model_duration": end_build_model_start_fit
                     - start_build_model,
@@ -246,10 +263,10 @@ def run(offset=0, num_models=-1):
                     "n_leapfrogs": n_leapfrogs,
                     "min_ess_bulk": (min_ess_bulk_par, min_ess_bulk),
                     "min_ess_tail": (min_ess_tail_par, min_ess_tail),
-                    "min_ess_bulk_per_draw": min_ess_bulk/(draws*chains),
-                    "min_ess_bulk_per_second": min_ess_bulk/stan_total_time,
-                    "min_ess_tail_per_draw": min_ess_tail/(draws*chains),
-                    "min_ess_tail_per_second": min_ess_tail/stan_total_time,
+                    "min_ess_bulk_per_draw": min_ess_bulk / (draws * chains),
+                    "min_ess_bulk_per_second": min_ess_bulk / stan_total_time,
+                    "min_ess_tail_per_draw": min_ess_tail / (draws * chains),
+                    "min_ess_tail_per_second": min_ess_tail / stan_total_time,
                     "stepsize": fit.stepsize,
                     "chains": chains,
                     "draws": draws,
@@ -269,7 +286,7 @@ def run(offset=0, num_models=-1):
 @click.option("--num_models", default=-1, help="Iterate through # of models")
 def process_models(offset, num_models):
     """Run models and get results."""
-    print(DB.posterior_names()[offset:offset+num_models])
+    print(DB.posterior_names()[offset : offset + num_models])
     fits = run(offset=offset, num_models=num_models)
     os.makedirs("./results", exist_ok=True)
     save_path = f"./results/results_offset_{offset}_num_models_{num_models}.pickle.gz"
