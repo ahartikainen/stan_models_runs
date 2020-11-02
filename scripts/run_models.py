@@ -34,7 +34,7 @@ def get_timing(path):
             if capture or (line.startswith("#") and "Elapsed Time" in line):
                 capture += 1
                 duration = float(
-                    re.search(r"(\d+\.\d*)\s+seconds", line, flags=re.IGNORECASE).group(
+                    re.search(r"(\d+.\d*e?-?\d+)\s+seconds", line, flags=re.IGNORECASE).group(
                         1
                     )
                 )
@@ -58,7 +58,7 @@ def get_timing_from_fit(fit):
 def get_gradient_timing(path):
     gradient_time = None
     with open(path, "r") as f:
-        match = re.search(r"Gradient evaluation took (\d+.\d+) seconds", f.read())
+        match = re.search(r"Gradient evaluation took (\d+.\d*e?-?\d+) seconds", f.read())
         if match:
             gradient_time = float(match.group(1))
     return gradient_time
