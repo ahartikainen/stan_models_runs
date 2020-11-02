@@ -221,7 +221,7 @@ def run(offset=0, num_models=-1):
 
                 stan_gradient_timing_info = get_gradient_timing_from_fit(fit)
                 stan_gradient_timing_info_sampling = (
-                    n_tree_depth / stan_timing_info["sampling"].values
+                    stan_timing_info["sampling"].values / n_tree_depth
                 )
 
                 summary = az.summary(fit)
