@@ -237,13 +237,13 @@ def run(offset=0, num_models=-1):
 
                 min_ess_bulk_par = (
                     summary["ess_bulk"].idxmin()
-                    if summary["ess_bulk"] < lp_ess_bulk
+                    if summary["ess_bulk"].min() < lp_ess_bulk
                     else "lp__"
                 )
                 min_ess_bulk = min(summary["ess_bulk"].min(), lp_ess_bulk)
                 min_ess_tail_par = (
                     summary["ess_tail"].idxmin()
-                    if summary["ess_tail"] < lp_ess_tail
+                    if summary["ess_tail"].min() < lp_ess_tail
                     else "lp__"
                 )
                 min_ess_tail = min(summary["ess_tail"].min(), lp_ess_tail)
