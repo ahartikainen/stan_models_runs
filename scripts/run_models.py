@@ -186,13 +186,13 @@ def run(offset=0, num_models=-1):
                     iter_warmup=warmup_draws,
                     iter_sampling=draws,
                     show_progress=True,
+                    save_warmup=True,
                 )
 
                 end_fit = time()
 
                 # Stan timings
                 stan_timing_info = get_timing_from_fit(fit)
-                stan_gradient_timing_info = get_gradient_timing_from_fit(fit)
 
                 # Diagnostics
                 divergent = fit.draws()[
@@ -203,6 +203,8 @@ def run(offset=0, num_models=-1):
                 treedepth = fit.draws()[
                     :, :, np.array(fit.column_names) == "treedepth__"
                 ]
+                n_tree_depth = treedepth.sum(0).ravel()
+                
                 max_tree_depth_value = get_max_treedepth_from_fit(fit)
                 if len(set(max_tree_depth_value)) > 1:
                     print("WHAT", max_tree_depth_value)
@@ -214,20 +216,41 @@ def run(offset=0, num_models=-1):
                     .astype(int)
                     .sum(0)
                 )
+                
+                stan_gradient_timing_info = get_gradient_timing_from_fit(fit)
+                stan_gradient_timing_info_sampling = n_tree_depth / stan_timing_info["sampling"].values
+
 
                 summary = az.summary(fit)
-
+                
+                lp_ess_bulk = az.ess(fit.draws()[:, :, np.array(fit.column_names) == "lp__"].squeeze().T, method="bulk")
+                lp_ess_tail = az.ess(fit.draws()[:, :, np.array(fit.column_names) == "lp__"].squeeze().T, method="tail")
+                
+                min_ess_bulk_par = summary["ess_bulk"].idxmin() if summary["ess_bulk"] < lp_ess_bulk else "lp__"
+                min_ess_bulk = min(summary["ess_bulk"].min(), lp_ess_bulk)),
+                min_ess_tail_par = summary["ess_tail"].idxmin() if summary["ess_tail"] < lp_ess_tail else "lp__"
+                min_ess_tail = min(summary["ess_tail"].min(), lp_ess_tail)),
+                
+                stan_total_time = stan_timing_info.values.sum()
+    
                 fit_info[model_name] = {
                     "cmdstanpy_model_duration": end_build_model_start_fit
                     - start_build_model,
                     "cmdstanpy_fit_duration": end_fit - end_build_model_start_fit,
                     "stan_timing": stan_timing_info,
                     "stan_gradient_timing": stan_gradient_timing_info,
+                    "stan_gradient_timing_sampling": stan_gradient_timing_info_sampling,
                     "n_divergent": n_divergent,
+                    "n_tree_depth": n_tree_depth,
                     "n_max_tree": n_max_tree,
                     "n_leapfrogs": n_leapfrogs,
-                    "min_ess_per_draw": summary["ess_bulk"].min()/(draws*chains),
-                    "min_ess_per_second": summary["ess_bulk"].min()/stan_timing_info.values.sum(),
+                    "min_ess_bulk": (min_ess_bulk_par, min_ess_bulk),
+                    "min_ess_tail": (min_ess_tail_par, min_ess_tail),
+                    "min_ess_bulk_per_draw": min_ess_bulk/(draws*chains),
+                    "min_ess_bulk_per_second": min_ess_bulk/stan_total_time,
+                    "min_ess_tail_per_draw": min_ess_tail/(draws*chains),
+                    "min_ess_tail_per_second": min_ess_tail/stan_total_time,
+                    "stepsize": fit.stepsize,
                     "chains": chains,
                     "draws": draws,
                     "warmup_draws": warmup_draws,
