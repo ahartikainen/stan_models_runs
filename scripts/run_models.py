@@ -18,10 +18,9 @@ import numpy as np
 import pandas as pd
 import posteriordb
 import ujson as json
+from posterior.posterior import Posterior
 
-POSTERIORDB_PATH = os.environ.get("POSTERIORDB")
-
-DB = posteriordb.PosteriorDatabase(POSTERIORDB_PATH)
+DB = posteriordb.PosteriorDatabaseGithub()
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -94,13 +93,14 @@ def get_model_and_data(offset=0, num_models=-1):
     fail_or_not = {"FAIL_INFO": True}
     model_count = 0
     with tempfile.TemporaryDirectory(prefix="stan_testing_") as tmpdir:
-        for i, p in enumerate(DB.posteriors(), 0):
+        for i, pname in enumerate(sorted(DB.posteriors_names()), 0):
             if i < offset:
                 continue
             if (num_models > 0) and ((model_count + 1) > num_models):
                 break
             model_count += 1
             try:
+                p = Posterior(pname, DB)
                 model_name = p.posterior_info["model_name"]
                 data_name = p.posterior_info["data_name"]
                 model_data = f"{data_name}-{model_name}"
@@ -168,12 +168,12 @@ def run(offset=0, num_models=-1):
             )
             end_build_model_start_fit = time()
 
-            if i in {
-                9,  # stuck warmup
-                32,  # slow sampling
-                60,  # seed 42 -> chain 1 stuck warmup
-                76,  # slow sampling
-                77,  # slow sampling
+            if model_name in {
+                "nes1972-nes",
+                "mnist-nn_rbm1bJ100",
+                "mcycle_splines-accel_splines",
+                "prideprejustice_chapter-ldaK5",
+                "prideprejustice_paragraph-ldaK5",
             }:
 
                 fit_info[model_name] = {
@@ -286,7 +286,7 @@ def run(offset=0, num_models=-1):
 @click.option("--num_models", default=-1, help="Iterate through # of models")
 def process_models(offset, num_models):
     """Run models and get results."""
-    print(DB.posterior_names()[offset : offset + num_models])
+    print(sorted(DB.posterior_names())[offset : offset + num_models])
     fits = run(offset=offset, num_models=num_models)
     os.makedirs("./results", exist_ok=True)
     save_path = f"./results/results_offset_{offset}_num_models_{num_models}.pickle.gz"
