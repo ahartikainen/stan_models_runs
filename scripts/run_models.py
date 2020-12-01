@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import posteriordb
 import ujson as json
-from posterior.posterior import Posterior
+from posteriordb.posterior import Posterior
 
 DB = posteriordb.PosteriorDatabaseGithub()
 
