@@ -321,6 +321,5 @@ if __name__ == "__main__":
     import datetime
 
     print(datetime.datetime.now())
-    print(POSTERIORDB_PATH)
     process_models()
     print(datetime.datetime.now())
