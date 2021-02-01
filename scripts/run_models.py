@@ -93,7 +93,7 @@ def get_model_and_data(offset=0, num_models=-1):
     fail_or_not = {"FAIL_INFO": True}
     model_count = 0
     with tempfile.TemporaryDirectory(prefix="stan_testing_") as tmpdir:
-        for i, pname in enumerate(sorted(DB.posteriors_names()), 0):
+        for i, pname in enumerate(sorted(DB.posterior_names()), 0):
             if i < offset:
                 continue
             if (num_models > 0) and ((model_count + 1) > num_models):
