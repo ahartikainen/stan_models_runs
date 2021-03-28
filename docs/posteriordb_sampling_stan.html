@@ -15,107 +15,231 @@
           
         <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator_simple.min.css" type="text/css" />
         <style>
-            .bk.pn-loading:before {
-                  position: absolute;
-                  height: 100%;
-                  width: 100%;
-                  content: '';
-                  z-index: 1000;
-                  background-color: rgb(255,255,255,0.50);
-                  border-color: lightgray;
-                  background-repeat: no-repeat;
-                  background-position: center;
-                  background-size: auto 50%;
-                  border-width: 1px;
-                  cursor: progress;
+            table.panel-df {
+                    margin-left: auto;
+                    margin-right: auto;
+                    border: none;
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    color: black;
+                    font-size: 12px;
+                    table-layout: fixed;
+                    width: 100%;
                 }
-                .bk.pn-loading.arcs:hover:before {
-                  cursor: progress;
+
+                .panel-df tr, .panel-df th, .panel-df td {
+                    text-align: right;
+                    vertical-align: middle;
+                    padding: 0.5em 0.5em !important;
+                    line-height: normal;
+                    white-space: normal;
+                    max-width: none;
+                    border: none;
+                }
+
+                .panel-df tbody {
+                    display: table-row-group;
+                    vertical-align: middle;
+                    border-color: inherit;
+                }
+
+                .panel-df tbody tr:nth-child(odd) {
+                    background: #f5f5f5;
+                }
+
+                .panel-df thead {
+                    border-bottom: 1px solid black;
+                    vertical-align: bottom;
+                }
+
+                .panel-df tr:hover {
+                    background: lightblue !important;
+                    cursor: pointer;
                 }
 
         </style>
         <style>
-            .codehilite .hll { background-color: #ffffcc }
-                .codehilite  { background: #f8f8f8; }
-                .codehilite .c { color: #408080; font-style: italic } /* Comment */
-                .codehilite .err { border: 1px solid #FF0000 } /* Error */
-                .codehilite .k { color: #008000; font-weight: bold } /* Keyword */
-                .codehilite .o { color: #666666 } /* Operator */
-                .codehilite .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
-                .codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
-                .codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
-                .codehilite .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
-                .codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
-                .codehilite .cs { color: #408080; font-style: italic } /* Comment.Special */
-                .codehilite .gd { color: #A00000 } /* Generic.Deleted */
-                .codehilite .ge { font-style: italic } /* Generic.Emph */
-                .codehilite .gr { color: #FF0000 } /* Generic.Error */
-                .codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
-                .codehilite .gi { color: #00A000 } /* Generic.Inserted */
-                .codehilite .go { color: #888888 } /* Generic.Output */
-                .codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
-                .codehilite .gs { font-weight: bold } /* Generic.Strong */
-                .codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
-                .codehilite .gt { color: #0044DD } /* Generic.Traceback */
-                .codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
-                .codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
-                .codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
-                .codehilite .kp { color: #008000 } /* Keyword.Pseudo */
-                .codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
-                .codehilite .kt { color: #B00040 } /* Keyword.Type */
-                .codehilite .m { color: #666666 } /* Literal.Number */
-                .codehilite .s { color: #BA2121 } /* Literal.String */
-                .codehilite .na { color: #7D9029 } /* Name.Attribute */
-                .codehilite .nb { color: #008000 } /* Name.Builtin */
-                .codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
-                .codehilite .no { color: #880000 } /* Name.Constant */
-                .codehilite .nd { color: #AA22FF } /* Name.Decorator */
-                .codehilite .ni { color: #999999; font-weight: bold } /* Name.Entity */
-                .codehilite .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
-                .codehilite .nf { color: #0000FF } /* Name.Function */
-                .codehilite .nl { color: #A0A000 } /* Name.Label */
-                .codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
-                .codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
-                .codehilite .nv { color: #19177C } /* Name.Variable */
-                .codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
-                .codehilite .w { color: #bbbbbb } /* Text.Whitespace */
-                .codehilite .mb { color: #666666 } /* Literal.Number.Bin */
-                .codehilite .mf { color: #666666 } /* Literal.Number.Float */
-                .codehilite .mh { color: #666666 } /* Literal.Number.Hex */
-                .codehilite .mi { color: #666666 } /* Literal.Number.Integer */
-                .codehilite .mo { color: #666666 } /* Literal.Number.Oct */
-                .codehilite .sa { color: #BA2121 } /* Literal.String.Affix */
-                .codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
-                .codehilite .sc { color: #BA2121 } /* Literal.String.Char */
-                .codehilite .dl { color: #BA2121 } /* Literal.String.Delimiter */
-                .codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
-                .codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
-                .codehilite .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
-                .codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
-                .codehilite .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
-                .codehilite .sx { color: #008000 } /* Literal.String.Other */
-                .codehilite .sr { color: #BB6688 } /* Literal.String.Regex */
-                .codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
-                .codehilite .ss { color: #19177C } /* Literal.String.Symbol */
-                .codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
-                .codehilite .fm { color: #0000FF } /* Name.Function.Magic */
-                .codehilite .vc { color: #19177C } /* Name.Variable.Class */
-                .codehilite .vg { color: #19177C } /* Name.Variable.Global */
-                .codehilite .vi { color: #19177C } /* Name.Variable.Instance */
-                .codehilite .vm { color: #19177C } /* Name.Variable.Magic */
-                .codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+            .bk.alert {
+                    padding: 0.75rem 1.25rem;
+                    border: 1px solid transparent;
+                    border-radius: 0.25rem;
+                    /* Don't set margin because that will not render correctly! */
+                    /* margin-bottom: 1rem; */
+                    margin-top: 15px;
+                    margin-bottom: 15px;
+                }
+                .bk.alert a {
+                    color: rgb(11, 46, 19); /* #002752; */
+                    font-weight: 700;
+                    text-decoration: rgb(11, 46, 19);
+                    text-decoration-color: rgb(11, 46, 19);
+                    text-decoration-line: none;
+                    text-decoration-style: solid;
+                    text-decoration-thickness: auto;
+                  }
+                .bk.alert a:hover {
+                    color: rgb(11, 46, 19);
+                    font-weight: 700;
+                    text-decoration: underline;
+                }
 
-                .markdown h1 { margin-block-start: 0.34em }
-                .markdown h2 { margin-block-start: 0.42em }
-                .markdown h3 { margin-block-start: 0.5em }
-                .markdown h4 { margin-block-start: 0.67em }
-                .markdown h5 { margin-block-start: 0.84em }
-                .markdown h6 { margin-block-start: 1.17em }
-                .markdown ul { padding-inline-start: 2em }
-                .markdown ol { padding-inline-start: 2em }
-                .markdown strong { font-weight: 600 }
-                .markdown a { color: -webkit-link }
-                .markdown a { color: -moz-hyperlinkText }
+                .bk.alert-primary {
+                    color: #004085;
+                    background-color: #cce5ff;
+                    border-color: #b8daff;
+                }
+                .bk.alert-primary hr {
+                    border-top-color: #9fcdff;
+                }
+
+                .bk.alert-secondary {
+                    color: #383d41;
+                    background-color: #e2e3e5;
+                    border-color: #d6d8db;
+                  }
+                .bk.alert-secondary hr {
+                    border-top-color: #c8cbcf;
+                }
+
+                .bk.alert-success {
+                    color: #155724;
+                    background-color: #d4edda;
+                    border-color: #c3e6cb;
+                  }
+
+                .bk.alert-success hr {
+                    border-top-color: #b1dfbb;
+                }
+
+                .bk.alert-info {
+                    color: #0c5460;
+                    background-color: #d1ecf1;
+                    border-color: #bee5eb;
+                  }
+                .bk.alert-info hr {
+                    border-top-color: #abdde5;
+                }
+
+                .bk.alert-warning {
+                    color: #856404;
+                    background-color: #fff3cd;
+                    border-color: #ffeeba;
+                  }
+
+                .bk.alert-warning hr {
+                    border-top-color: #ffe8a1;
+                }
+
+                .bk.alert-danger {
+                    color: #721c24;
+                    background-color: #f8d7da;
+                    border-color: #f5c6cb;
+                }
+                .bk.alert-danger hr {
+                    border-top-color: #f1b0b7;
+                }
+
+                .bk.alert-light {
+                    color: #818182;
+                    background-color: #fefefe;
+                    border-color: #fdfdfe;
+                  }
+                .bk.alert-light hr {
+                    border-top-color: #ececf6;
+                }
+
+                .bk.alert-dark {
+                    color: #1b1e21;
+                    background-color: #d6d8d9;
+                    border-color: #c6c8ca;
+                  }
+                .bk.alert-dark hr {
+                    border-top-color: #b9bbbe;
+                }
+
+
+                /* adjfæl */
+
+                .bk.alert-primary a {
+                    color: #002752;
+                }
+
+                .bk.alert-secondary a {
+                    color: #202326;
+                }
+
+
+                .bk.alert-success a {
+                    color: #0b2e13;
+                }
+
+
+                .bk.alert-info a {
+                    color: #062c33;
+                }
+
+
+                .bk.alert-warning a {
+                    color: #533f03;
+                }
+
+
+                .bk.alert-danger a {
+                    color: #491217;
+                }
+
+                .bk.alert-light a {
+                    color: #686868;
+                }
+
+                .bk.alert-dark a {
+                    color: #040505;
+                }
+        </style>
+        <style>
+            .bk.card {
+                  border: 1px solid rgba(0,0,0,.125);
+                  border-radius: 0.25rem;
+                }
+                .bk.accordion {
+                  border: 1px solid rgba(0,0,0,.125);
+                }
+                .bk.card-header {
+                  align-items: center;
+                  background-color: rgba(0, 0, 0, 0.03);
+                  border-radius: 0.25rem;
+                  display: flex;
+                  justify-content: space-between;
+                  padding: 0 1.25rem 0 0;
+                  width: 100%;
+                }
+                .bk.accordion-header {
+                  align-items: center;
+                  background-color: rgba(0, 0, 0, 0.03);
+                  border-radius: 0;
+                  display: flex;
+                  justify-content: space-between;
+                  padding: 0 1.25rem 0 0;
+                  width: 100%;
+                }
+                p.bk.card-button {
+                  background-color: transparent;
+                  font-size: 1.25rem;
+                  font-weight: 700;
+                  margin: 0;
+                  margin-left: -15px;
+                }
+                .bk.card-header-row {
+                  position: relative !important;
+                }
+                .bk.card-title {
+                  align-items: center;
+                  display: flex !important;
+                  font-size: 1.4em;
+                  font-weight: bold;
+                  padding: 0.25em;
+                  position: relative !important;
+                }
 
         </style>
         <style>
@@ -313,6 +437,90 @@
                 .json-formatter-dark.json-formatter-row.json-formatter-open.json-formatter-empty:after {
                   display: block;
                 }
+
+        </style>
+        <style>
+            .codehilite .hll { background-color: #ffffcc }
+                .codehilite  { background: #f8f8f8; }
+                .codehilite .c { color: #408080; font-style: italic } /* Comment */
+                .codehilite .err { border: 1px solid #FF0000 } /* Error */
+                .codehilite .k { color: #008000; font-weight: bold } /* Keyword */
+                .codehilite .o { color: #666666 } /* Operator */
+                .codehilite .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
+                .codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+                .codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
+                .codehilite .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
+                .codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
+                .codehilite .cs { color: #408080; font-style: italic } /* Comment.Special */
+                .codehilite .gd { color: #A00000 } /* Generic.Deleted */
+                .codehilite .ge { font-style: italic } /* Generic.Emph */
+                .codehilite .gr { color: #FF0000 } /* Generic.Error */
+                .codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+                .codehilite .gi { color: #00A000 } /* Generic.Inserted */
+                .codehilite .go { color: #888888 } /* Generic.Output */
+                .codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+                .codehilite .gs { font-weight: bold } /* Generic.Strong */
+                .codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+                .codehilite .gt { color: #0044DD } /* Generic.Traceback */
+                .codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+                .codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+                .codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+                .codehilite .kp { color: #008000 } /* Keyword.Pseudo */
+                .codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+                .codehilite .kt { color: #B00040 } /* Keyword.Type */
+                .codehilite .m { color: #666666 } /* Literal.Number */
+                .codehilite .s { color: #BA2121 } /* Literal.String */
+                .codehilite .na { color: #7D9029 } /* Name.Attribute */
+                .codehilite .nb { color: #008000 } /* Name.Builtin */
+                .codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+                .codehilite .no { color: #880000 } /* Name.Constant */
+                .codehilite .nd { color: #AA22FF } /* Name.Decorator */
+                .codehilite .ni { color: #999999; font-weight: bold } /* Name.Entity */
+                .codehilite .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+                .codehilite .nf { color: #0000FF } /* Name.Function */
+                .codehilite .nl { color: #A0A000 } /* Name.Label */
+                .codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+                .codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
+                .codehilite .nv { color: #19177C } /* Name.Variable */
+                .codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+                .codehilite .w { color: #bbbbbb } /* Text.Whitespace */
+                .codehilite .mb { color: #666666 } /* Literal.Number.Bin */
+                .codehilite .mf { color: #666666 } /* Literal.Number.Float */
+                .codehilite .mh { color: #666666 } /* Literal.Number.Hex */
+                .codehilite .mi { color: #666666 } /* Literal.Number.Integer */
+                .codehilite .mo { color: #666666 } /* Literal.Number.Oct */
+                .codehilite .sa { color: #BA2121 } /* Literal.String.Affix */
+                .codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
+                .codehilite .sc { color: #BA2121 } /* Literal.String.Char */
+                .codehilite .dl { color: #BA2121 } /* Literal.String.Delimiter */
+                .codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+                .codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
+                .codehilite .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+                .codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
+                .codehilite .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+                .codehilite .sx { color: #008000 } /* Literal.String.Other */
+                .codehilite .sr { color: #BB6688 } /* Literal.String.Regex */
+                .codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
+                .codehilite .ss { color: #19177C } /* Literal.String.Symbol */
+                .codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
+                .codehilite .fm { color: #0000FF } /* Name.Function.Magic */
+                .codehilite .vc { color: #19177C } /* Name.Variable.Class */
+                .codehilite .vg { color: #19177C } /* Name.Variable.Global */
+                .codehilite .vi { color: #19177C } /* Name.Variable.Instance */
+                .codehilite .vm { color: #19177C } /* Name.Variable.Magic */
+                .codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+
+                .markdown h1 { margin-block-start: 0.34em }
+                .markdown h2 { margin-block-start: 0.42em }
+                .markdown h3 { margin-block-start: 0.5em }
+                .markdown h4 { margin-block-start: 0.67em }
+                .markdown h5 { margin-block-start: 0.84em }
+                .markdown h6 { margin-block-start: 1.17em }
+                .markdown ul { padding-inline-start: 2em }
+                .markdown ol { padding-inline-start: 2em }
+                .markdown strong { font-weight: 600 }
+                .markdown a { color: -webkit-link }
+                .markdown a { color: -moz-hyperlinkText }
 
         </style>
         <style>
@@ -605,232 +813,24 @@
 
         </style>
         <style>
-            .bk.card {
-                  border: 1px solid rgba(0,0,0,.125);
-                  border-radius: 0.25rem;
-                }
-                .bk.accordion {
-                  border: 1px solid rgba(0,0,0,.125);
-                }
-                .bk.card-header {
-                  align-items: center;
-                  background-color: rgba(0, 0, 0, 0.03);
-                  border-radius: 0.25rem;
-                  display: flex;
-                  justify-content: space-between;
-                  padding: 0 1.25rem 0 0;
+            .bk.pn-loading:before {
+                  position: absolute;
+                  height: 100%;
                   width: 100%;
+                  content: '';
+                  z-index: 1000;
+                  background-color: rgb(255,255,255,0.50);
+                  border-color: lightgray;
+                  background-repeat: no-repeat;
+                  background-position: center;
+                  background-size: auto 50%;
+                  border-width: 1px;
+                  cursor: progress;
                 }
-                .bk.accordion-header {
-                  align-items: center;
-                  background-color: rgba(0, 0, 0, 0.03);
-                  border-radius: 0;
-                  display: flex;
-                  justify-content: space-between;
-                  padding: 0 1.25rem 0 0;
-                  width: 100%;
-                }
-                p.bk.card-button {
-                  background-color: transparent;
-                  font-size: 1.25rem;
-                  font-weight: 700;
-                  margin: 0;
-                  margin-left: -15px;
-                }
-                .bk.card-header-row {
-                  position: relative !important;
-                }
-                .bk.card-title {
-                  align-items: center;
-                  display: flex !important;
-                  font-size: 1.4em;
-                  font-weight: bold;
-                  padding: 0.25em;
-                  position: relative !important;
+                .bk.pn-loading.arcs:hover:before {
+                  cursor: progress;
                 }
 
-        </style>
-        <style>
-            table.panel-df {
-                    margin-left: auto;
-                    margin-right: auto;
-                    border: none;
-                    border-collapse: collapse;
-                    border-spacing: 0;
-                    color: black;
-                    font-size: 12px;
-                    table-layout: fixed;
-                    width: 100%;
-                }
-
-                .panel-df tr, .panel-df th, .panel-df td {
-                    text-align: right;
-                    vertical-align: middle;
-                    padding: 0.5em 0.5em !important;
-                    line-height: normal;
-                    white-space: normal;
-                    max-width: none;
-                    border: none;
-                }
-
-                .panel-df tbody {
-                    display: table-row-group;
-                    vertical-align: middle;
-                    border-color: inherit;
-                }
-
-                .panel-df tbody tr:nth-child(odd) {
-                    background: #f5f5f5;
-                }
-
-                .panel-df thead {
-                    border-bottom: 1px solid black;
-                    vertical-align: bottom;
-                }
-
-                .panel-df tr:hover {
-                    background: lightblue !important;
-                    cursor: pointer;
-                }
-
-        </style>
-        <style>
-            .bk.alert {
-                    padding: 0.75rem 1.25rem;
-                    border: 1px solid transparent;
-                    border-radius: 0.25rem;
-                    /* Don't set margin because that will not render correctly! */
-                    /* margin-bottom: 1rem; */
-                    margin-top: 15px;
-                    margin-bottom: 15px;
-                }
-                .bk.alert a {
-                    color: rgb(11, 46, 19); /* #002752; */
-                    font-weight: 700;
-                    text-decoration: rgb(11, 46, 19);
-                    text-decoration-color: rgb(11, 46, 19);
-                    text-decoration-line: none;
-                    text-decoration-style: solid;
-                    text-decoration-thickness: auto;
-                  }
-                .bk.alert a:hover {
-                    color: rgb(11, 46, 19);
-                    font-weight: 700;
-                    text-decoration: underline;
-                }
-
-                .bk.alert-primary {
-                    color: #004085;
-                    background-color: #cce5ff;
-                    border-color: #b8daff;
-                }
-                .bk.alert-primary hr {
-                    border-top-color: #9fcdff;
-                }
-
-                .bk.alert-secondary {
-                    color: #383d41;
-                    background-color: #e2e3e5;
-                    border-color: #d6d8db;
-                  }
-                .bk.alert-secondary hr {
-                    border-top-color: #c8cbcf;
-                }
-
-                .bk.alert-success {
-                    color: #155724;
-                    background-color: #d4edda;
-                    border-color: #c3e6cb;
-                  }
-
-                .bk.alert-success hr {
-                    border-top-color: #b1dfbb;
-                }
-
-                .bk.alert-info {
-                    color: #0c5460;
-                    background-color: #d1ecf1;
-                    border-color: #bee5eb;
-                  }
-                .bk.alert-info hr {
-                    border-top-color: #abdde5;
-                }
-
-                .bk.alert-warning {
-                    color: #856404;
-                    background-color: #fff3cd;
-                    border-color: #ffeeba;
-                  }
-
-                .bk.alert-warning hr {
-                    border-top-color: #ffe8a1;
-                }
-
-                .bk.alert-danger {
-                    color: #721c24;
-                    background-color: #f8d7da;
-                    border-color: #f5c6cb;
-                }
-                .bk.alert-danger hr {
-                    border-top-color: #f1b0b7;
-                }
-
-                .bk.alert-light {
-                    color: #818182;
-                    background-color: #fefefe;
-                    border-color: #fdfdfe;
-                  }
-                .bk.alert-light hr {
-                    border-top-color: #ececf6;
-                }
-
-                .bk.alert-dark {
-                    color: #1b1e21;
-                    background-color: #d6d8d9;
-                    border-color: #c6c8ca;
-                  }
-                .bk.alert-dark hr {
-                    border-top-color: #b9bbbe;
-                }
-
-
-                /* adjfæl */
-
-                .bk.alert-primary a {
-                    color: #002752;
-                }
-
-                .bk.alert-secondary a {
-                    color: #202326;
-                }
-
-
-                .bk.alert-success a {
-                    color: #0b2e13;
-                }
-
-
-                .bk.alert-info a {
-                    color: #062c33;
-                }
-
-
-                .bk.alert-warning a {
-                    color: #533f03;
-                }
-
-
-                .bk.alert-danger a {
-                    color: #491217;
-                }
-
-                .bk.alert-light a {
-                    color: #686868;
-                }
-
-                .bk.alert-dark a {
-                    color: #040505;
-                }
         </style>
         <style>
             
@@ -1884,14 +1884,14 @@
           
           
             
-              <div class="bk-root" id="105d3cc4-7597-4f24-98f9-fc66f925fa9e" data-root-id="1074"></div>
+              <div class="bk-root" id="2d9aa217-2435-40ee-a6e2-015bf82ac4f3" data-root-id="1074"></div>
             
           
         
       
       
         <script type="application/json" id="1223">
-          {"0e2251fa-78ff-433b-99f4-e811f55adf5a":{"defs":[{"extends":null,"module":null,"name":"DataModel","overrides":[],"properties":[]}],"roots":{"references":[{"attributes":{},"id":"1061","type":"ResetTool"},{"attributes":{},"id":"1076","type":"BasicTickFormatter"},{"attributes":{"active_multi":null,"tools":[{"id":"1023"},{"id":"1024"},{"id":"1025"},{"id":"1026"},{"id":"1003"}]},"id":"1028","type":"Toolbar"},{"attributes":{},"id":"1084","type":"UnionRenderers"},{"attributes":{"axis_label":"Model names (see hover)","formatter":{"id":"1076"},"major_label_policy":{"id":"1077"},"ticker":{"id":"1016"}},"id":"1015","type":"LinearAxis"},{"attributes":{"below":[{"id":"1050"}],"center":[{"id":"1053"},{"id":"1057"}],"left":[{"id":"1054"}],"max_height":400,"output_backend":"webgl","renderers":[{"id":"1072"}],"sizing_mode":"stretch_both","title":{"id":"1040"},"toolbar":{"id":"1063"},"x_range":{"id":"1042"},"x_scale":{"id":"1046"},"y_range":{"id":"1044"},"y_scale":{"id":"1048"}},"id":"1039","subtype":"Figure","type":"Plot"},{"attributes":{},"id":"1077","type":"AllLabels"},{"attributes":{"below":[{"id":"1015"}],"center":[{"id":"1018"},{"id":"1022"}],"left":[{"id":"1019"}],"max_height":400,"output_backend":"webgl","renderers":[{"id":"1037"}],"sizing_mode":"stretch_both","title":{"id":"1005"},"toolbar":{"id":"1028"},"x_range":{"id":"1007"},"x_scale":{"id":"1011"},"y_range":{"id":"1009"},"y_scale":{"id":"1013"}},"id":"1004","subtype":"Figure","type":"Plot"},{"attributes":{"num_minor_ticks":10},"id":"1055","type":"LogTicker"},{"attributes":{"text":"Model compilation comparison: Updated 2021-03-21 01:23 UTC"},"id":"1005","type":"Title"},{"attributes":{},"id":"1011","type":"LinearScale"},{"attributes":{},"id":"1046","type":"LinearScale"},{"attributes":{},"id":"1026","type":"ResetTool"},{"attributes":{"axis_label":"Models (see model info with hover)","formatter":{"id":"1096"},"major_label_policy":{"id":"1097"},"ticker":{"id":"1051"}},"id":"1050","type":"LinearAxis"},{"attributes":{"children":[{"id":"1004"},{"id":"1039"}],"margin":[0,0,0,0],"name":"Column00101","sizing_mode":"stretch_both"},"id":"1074","type":"Column"},{"attributes":{},"id":"1016","type":"BasicTicker"},{"attributes":{},"id":"1023","type":"PanTool"},{"attributes":{"bottom_units":"screen","fill_alpha":0.5,"fill_color":"lightgrey","left_units":"screen","level":"overlay","line_alpha":1.0,"line_color":"black","line_dash":[4,4],"line_width":2,"right_units":"screen","syncable":false,"top_units":"screen"},"id":"1062","type":"BoxAnnotation"},{"attributes":{"axis":{"id":"1019"},"dimension":1,"ticker":null},"id":"1022","type":"Grid"},{"attributes":{},"id":"1013","type":"LinearScale"},{"attributes":{},"id":"1025","type":"WheelZoomTool"},{"attributes":{},"id":"1080","type":"AllLabels"},{"attributes":{},"id":"1020","type":"BasicTicker"},{"attributes":{"axis":{"id":"1015"},"ticker":null},"id":"1018","type":"Grid"},{"attributes":{},"id":"1096","type":"BasicTickFormatter"},{"attributes":{"bottom_units":"screen","fill_alpha":0.5,"fill_color":"lightgrey","left_units":"screen","level":"overlay","line_alpha":1.0,"line_color":"black","line_dash":[4,4],"line_width":2,"right_units":"screen","syncable":false,"top_units":"screen"},"id":"1027","type":"BoxAnnotation"},{"attributes":{},"id":"1079","type":"BasicTickFormatter"},{"attributes":{},"id":"1097","type":"AllLabels"},{"attributes":{},"id":"1058","type":"PanTool"},{"attributes":{},"id":"1009","type":"DataRange1d"},{"attributes":{"active_multi":null,"tools":[{"id":"1058"},{"id":"1059"},{"id":"1060"},{"id":"1061"},{"id":"1003"}]},"id":"1063","type":"Toolbar"},{"attributes":{"callback":null,"tooltips":[["Model name","@name"],["Index","@i"],["Model Duration","@duration_model{1.1}"],["Fit Duration","@duration_fit{1.1}"],["Timing_warmup","@timing_warmup"],["Timing_sampling","@timing_sampling"],["Gradient timing reported","@stan_gradient_timing"],["Gradient timing calculated","@stan_gradient_timing_sampling"],["Divergent (sum)","@n_divergent"],["Tree Depth (sum)","@n_tree_depth"],["Max tree-depth (sum)","@n_max_tree"],["Leapfrogs (sum)","@n_leapfrogs"],["Min ESS_bulk/draw","@min_ess_bulk_per_draw"],["Min ESS_bulk/second","@min_ess_bulk_per_second"],["Min ESS_tail/draw","@min_ess_tail_per_draw"],["Min ESS_tail/second","@min_ess_tail_per_second"],["Stepsize","@stepsize"],["Warmup draws","@warmup_draws"],["Draws","@draws"],["Chains","@chains"]]},"id":"1003","type":"HoverTool"},{"attributes":{"ticker":null},"id":"1099","type":"LogTickFormatter"},{"attributes":{"data":{"duration_fit":{"__ndarray__":"exSuR+F6hD97FK5H4XqEP3sUrkfheoQ/exSuR+F6hD97FK5H4XqEPw==","dtype":"float64","order":"little","shape":[5]},"duration_model":{"__ndarray__":"AAAAwJe6KkAAAABoczowQAAAAChCKjBAAAAAoBAdNkAAAAA4nNszQA==","dtype":"float64","order":"little","shape":[5]},"fit_color":["darkgrey","darkgrey","darkgrey","darkgrey","darkgrey"],"i":[0,1,2,3,4],"index":[0,1,2,3,4],"name":["nes1972-nes","prideprejustice_chapter-ldaK5","prideprejustice_paragraph-ldaK5","mcycle_splines-accel_splines","mnist-nn_rbm1bJ100"]},"selected":{"id":"1083"},"selection_policy":{"id":"1084"}},"id":"1002","type":"ColumnDataSource"},{"attributes":{},"id":"1100","type":"AllLabels"},{"attributes":{"axis_label":"Sampling time (seconds)","formatter":{"id":"1099"},"major_label_policy":{"id":"1100"},"ticker":{"id":"1055"}},"id":"1054","type":"LogAxis"},{"attributes":{"overlay":{"id":"1027"}},"id":"1024","type":"BoxZoomTool"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"value":"dodgerblue"},"line_alpha":{"value":0.1},"line_color":{"value":"dodgerblue"},"size":{"value":10},"x":{"field":"i"},"y":{"field":"duration_model"}},"id":"1036","type":"Circle"},{"attributes":{"axis":{"id":"1050"},"ticker":null},"id":"1053","type":"Grid"},{"attributes":{},"id":"1042","type":"DataRange1d"},{"attributes":{"fill_color":{"value":"dodgerblue"},"line_color":{"value":"dodgerblue"},"size":{"value":10},"x":{"field":"i"},"y":{"field":"duration_model"}},"id":"1035","type":"Circle"},{"attributes":{"source":{"id":"1002"}},"id":"1038","type":"CDSView"},{"attributes":{"fill_color":{"field":"fit_color"},"line_color":{"field":"fit_color"},"size":{"value":10},"x":{"field":"i"},"y":{"field":"duration_fit"}},"id":"1070","type":"Circle"},{"attributes":{},"id":"1083","type":"Selection"},{"attributes":{"data_source":{"id":"1002"},"glyph":{"id":"1035"},"hover_glyph":null,"muted_glyph":null,"nonselection_glyph":{"id":"1036"},"view":{"id":"1038"}},"id":"1037","type":"GlyphRenderer"},{"attributes":{},"id":"1044","type":"DataRange1d"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"field":"fit_color"},"line_alpha":{"value":0.1},"line_color":{"field":"fit_color"},"size":{"value":10},"x":{"field":"i"},"y":{"field":"duration_fit"}},"id":"1071","type":"Circle"},{"attributes":{"axis_label":"Compilation time (seconds)","formatter":{"id":"1079"},"major_label_policy":{"id":"1080"},"ticker":{"id":"1020"}},"id":"1019","type":"LinearAxis"},{"attributes":{"axis":{"id":"1054"},"dimension":1,"ticker":null},"id":"1057","type":"Grid"},{"attributes":{"text":"Sampling comparison (warmup: 0, draws: 0, chains: 0)"},"id":"1040","type":"Title"},{"attributes":{"overlay":{"id":"1062"}},"id":"1059","type":"BoxZoomTool"},{"attributes":{},"id":"1060","type":"WheelZoomTool"},{"attributes":{"source":{"id":"1002"}},"id":"1073","type":"CDSView"},{"attributes":{},"id":"1051","type":"BasicTicker"},{"attributes":{"data_source":{"id":"1002"},"glyph":{"id":"1070"},"hover_glyph":null,"muted_glyph":null,"nonselection_glyph":{"id":"1071"},"view":{"id":"1073"}},"id":"1072","type":"GlyphRenderer"},{"attributes":{},"id":"1048","type":"LogScale"},{"attributes":{},"id":"1007","type":"DataRange1d"}],"root_ids":["1074"]},"title":"Bokeh Application","version":"2.3.0"}}
+          {"0cef3b24-d33d-4c47-9677-fbb705cfe77e":{"defs":[{"extends":null,"module":null,"name":"DataModel","overrides":[],"properties":[]}],"roots":{"references":[{"attributes":{"data_source":{"id":"1002"},"glyph":{"id":"1070"},"hover_glyph":null,"muted_glyph":null,"nonselection_glyph":{"id":"1071"},"view":{"id":"1073"}},"id":"1072","type":"GlyphRenderer"},{"attributes":{},"id":"1101","type":"AllLabels"},{"attributes":{},"id":"1061","type":"ResetTool"},{"attributes":{"active_multi":null,"tools":[{"id":"1023"},{"id":"1024"},{"id":"1025"},{"id":"1026"},{"id":"1003"}]},"id":"1028","type":"Toolbar"},{"attributes":{"axis_label":"Model names (see hover)","formatter":{"id":"1079"},"major_label_policy":{"id":"1081"},"ticker":{"id":"1016"}},"id":"1015","type":"LinearAxis"},{"attributes":{"data_source":{"id":"1002"},"glyph":{"id":"1035"},"hover_glyph":null,"muted_glyph":null,"nonselection_glyph":{"id":"1036"},"view":{"id":"1038"}},"id":"1037","type":"GlyphRenderer"},{"attributes":{"below":[{"id":"1015"}],"center":[{"id":"1018"},{"id":"1022"}],"left":[{"id":"1019"}],"max_height":400,"output_backend":"webgl","renderers":[{"id":"1037"}],"sizing_mode":"stretch_both","title":{"id":"1005"},"toolbar":{"id":"1028"},"x_range":{"id":"1007"},"x_scale":{"id":"1011"},"y_range":{"id":"1009"},"y_scale":{"id":"1013"}},"id":"1004","subtype":"Figure","type":"Plot"},{"attributes":{"data":{"duration_fit":{"__ndarray__":"exSuR+F6hD97FK5H4XqEP3sUrkfheoQ/exSuR+F6hD97FK5H4XqEPw==","dtype":"float64","order":"little","shape":[5]},"duration_model":{"__ndarray__":"AAAAoFxLLEAAAAA4AYYsQAAAANDbtipAAAAARGoXMUAAAAAgcQszQA==","dtype":"float64","order":"little","shape":[5]},"fit_color":["darkgrey","darkgrey","darkgrey","darkgrey","darkgrey"],"i":[0,1,2,3,4],"index":[0,1,2,3,4],"name":["prideprejustice_chapter-ldaK5","prideprejustice_paragraph-ldaK5","nes1972-nes","mcycle_splines-accel_splines","mnist-nn_rbm1bJ100"]},"selected":{"id":"1082"},"selection_policy":{"id":"1083"}},"id":"1002","type":"ColumnDataSource"},{"attributes":{},"id":"1011","type":"LinearScale"},{"attributes":{},"id":"1026","type":"ResetTool"},{"attributes":{"text":"Model compilation comparison: Updated 2021-03-28 03:28 UTC"},"id":"1005","type":"Title"},{"attributes":{},"id":"1046","type":"LinearScale"},{"attributes":{"callback":null,"tooltips":[["Model name","@name"],["Index","@i"],["Model Duration","@duration_model{1.1}"],["Fit Duration","@duration_fit{1.1}"],["Timing_warmup","@timing_warmup"],["Timing_sampling","@timing_sampling"],["Gradient timing reported","@stan_gradient_timing"],["Gradient timing calculated","@stan_gradient_timing_sampling"],["Divergent (sum)","@n_divergent"],["Tree Depth (sum)","@n_tree_depth"],["Max tree-depth (sum)","@n_max_tree"],["Leapfrogs (sum)","@n_leapfrogs"],["Min ESS_bulk/draw","@min_ess_bulk_per_draw"],["Min ESS_bulk/second","@min_ess_bulk_per_second"],["Min ESS_tail/draw","@min_ess_tail_per_draw"],["Min ESS_tail/second","@min_ess_tail_per_second"],["Stepsize","@stepsize"],["Warmup draws","@warmup_draws"],["Draws","@draws"],["Chains","@chains"]]},"id":"1003","type":"HoverTool"},{"attributes":{"axis_label":"Models (see model info with hover)","formatter":{"id":"1099"},"major_label_policy":{"id":"1101"},"ticker":{"id":"1051"}},"id":"1050","type":"LinearAxis"},{"attributes":{"bottom_units":"screen","fill_alpha":0.5,"fill_color":"lightgrey","left_units":"screen","level":"overlay","line_alpha":1.0,"line_color":"black","line_dash":[4,4],"line_width":2,"right_units":"screen","syncable":false,"top_units":"screen"},"id":"1062","type":"BoxAnnotation"},{"attributes":{},"id":"1016","type":"BasicTicker"},{"attributes":{"children":[{"id":"1004"},{"id":"1039"}],"margin":[0,0,0,0],"name":"Column00101","sizing_mode":"stretch_both"},"id":"1074","type":"Column"},{"attributes":{},"id":"1023","type":"PanTool"},{"attributes":{},"id":"1051","type":"BasicTicker"},{"attributes":{},"id":"1025","type":"WheelZoomTool"},{"attributes":{},"id":"1060","type":"WheelZoomTool"},{"attributes":{"axis":{"id":"1019"},"dimension":1,"ticker":null},"id":"1022","type":"Grid"},{"attributes":{},"id":"1013","type":"LinearScale"},{"attributes":{},"id":"1082","type":"Selection"},{"attributes":{},"id":"1020","type":"BasicTicker"},{"attributes":{"axis":{"id":"1015"},"ticker":null},"id":"1018","type":"Grid"},{"attributes":{},"id":"1076","type":"BasicTickFormatter"},{"attributes":{},"id":"1083","type":"UnionRenderers"},{"attributes":{"bottom_units":"screen","fill_alpha":0.5,"fill_color":"lightgrey","left_units":"screen","level":"overlay","line_alpha":1.0,"line_color":"black","line_dash":[4,4],"line_width":2,"right_units":"screen","syncable":false,"top_units":"screen"},"id":"1027","type":"BoxAnnotation"},{"attributes":{},"id":"1058","type":"PanTool"},{"attributes":{},"id":"1009","type":"DataRange1d"},{"attributes":{},"id":"1078","type":"AllLabels"},{"attributes":{"active_multi":null,"tools":[{"id":"1058"},{"id":"1059"},{"id":"1060"},{"id":"1061"},{"id":"1003"}]},"id":"1063","type":"Toolbar"},{"attributes":{},"id":"1079","type":"BasicTickFormatter"},{"attributes":{"overlay":{"id":"1027"}},"id":"1024","type":"BoxZoomTool"},{"attributes":{"axis_label":"Sampling time (seconds)","formatter":{"id":"1096"},"major_label_policy":{"id":"1098"},"ticker":{"id":"1055"}},"id":"1054","type":"LogAxis"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"value":"dodgerblue"},"line_alpha":{"value":0.1},"line_color":{"value":"dodgerblue"},"size":{"value":10},"x":{"field":"i"},"y":{"field":"duration_model"}},"id":"1036","type":"Circle"},{"attributes":{"axis":{"id":"1050"},"ticker":null},"id":"1053","type":"Grid"},{"attributes":{},"id":"1042","type":"DataRange1d"},{"attributes":{"source":{"id":"1002"}},"id":"1038","type":"CDSView"},{"attributes":{"below":[{"id":"1050"}],"center":[{"id":"1053"},{"id":"1057"}],"left":[{"id":"1054"}],"max_height":400,"output_backend":"webgl","renderers":[{"id":"1072"}],"sizing_mode":"stretch_both","title":{"id":"1040"},"toolbar":{"id":"1063"},"x_range":{"id":"1042"},"x_scale":{"id":"1046"},"y_range":{"id":"1044"},"y_scale":{"id":"1048"}},"id":"1039","subtype":"Figure","type":"Plot"},{"attributes":{"fill_color":{"value":"dodgerblue"},"line_color":{"value":"dodgerblue"},"size":{"value":10},"x":{"field":"i"},"y":{"field":"duration_model"}},"id":"1035","type":"Circle"},{"attributes":{},"id":"1081","type":"AllLabels"},{"attributes":{"fill_color":{"field":"fit_color"},"line_color":{"field":"fit_color"},"size":{"value":10},"x":{"field":"i"},"y":{"field":"duration_fit"}},"id":"1070","type":"Circle"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"field":"fit_color"},"line_alpha":{"value":0.1},"line_color":{"field":"fit_color"},"size":{"value":10},"x":{"field":"i"},"y":{"field":"duration_fit"}},"id":"1071","type":"Circle"},{"attributes":{"ticker":null},"id":"1096","type":"LogTickFormatter"},{"attributes":{"axis_label":"Compilation time (seconds)","formatter":{"id":"1076"},"major_label_policy":{"id":"1078"},"ticker":{"id":"1020"}},"id":"1019","type":"LinearAxis"},{"attributes":{"text":"Sampling comparison (warmup: 0, draws: 0, chains: 0)"},"id":"1040","type":"Title"},{"attributes":{},"id":"1044","type":"DataRange1d"},{"attributes":{},"id":"1048","type":"LogScale"},{"attributes":{"source":{"id":"1002"}},"id":"1073","type":"CDSView"},{"attributes":{},"id":"1098","type":"AllLabels"},{"attributes":{"axis":{"id":"1054"},"dimension":1,"ticker":null},"id":"1057","type":"Grid"},{"attributes":{},"id":"1007","type":"DataRange1d"},{"attributes":{"overlay":{"id":"1062"}},"id":"1059","type":"BoxZoomTool"},{"attributes":{},"id":"1099","type":"BasicTickFormatter"},{"attributes":{"num_minor_ticks":10},"id":"1055","type":"LogTicker"}],"root_ids":["1074"]},"title":"Bokeh Application","version":"2.3.0"}}
         </script>
         <script type="text/javascript">
           (function() {
@@ -1901,7 +1901,7 @@
                   function embed_document(root) {
                     
                   var docs_json = document.getElementById('1223').textContent;
-                  var render_items = [{"docid":"0e2251fa-78ff-433b-99f4-e811f55adf5a","root_ids":["1074"],"roots":{"1074":"105d3cc4-7597-4f24-98f9-fc66f925fa9e"}}];
+                  var render_items = [{"docid":"0cef3b24-d33d-4c47-9677-fbb705cfe77e","root_ids":["1074"],"roots":{"1074":"2d9aa217-2435-40ee-a6e2-015bf82ac4f3"}}];
                   root.Bokeh.embed.embed_items(docs_json, render_items);
                 
                   }
